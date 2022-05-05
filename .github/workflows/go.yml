@@ -24,24 +24,18 @@ jobs:
 
     - name: Test
       run: go test -v ./...
-
-    - name: Copy and build
-      uses: appleboy/ssh-action@deply
+  
+    - name: SSH Remote Commands
+      # You may pin to the exact commit or the version.
+      # uses: appleboy/ssh-action@1d1b21ca96111b1eb4c03c21c14ebb971d2200f6
+      uses: appleboy/ssh-action@v0.1.4
       with:
+        # ssh host
         host: ${{ secrets.HOST }}
-        username: ${{ secrets.USERNAME }}
-        password: ${{ secrets.PASSWORD }}
+        # ssh port
         port: ${{ secrets.PORT }}
-        source: '*'
-        target: ${{ secrets.SERVICE_PATH }}
-
-    - name: Deploy
-      uses: appleboy/ssh-action@deply
-      with:
-        host: ${{ secrets.HOST }}
+        # ssh username
         username: ${{ secrets.USERNAME }}
+        # ssh password
         password: ${{ secrets.PASSWORD }}
-        port: ${{ secrets.PORT }}
-        script: |
-          systemctl restart ${{secrets.SERVICE_NAME}}
-        
+        # synchronous execution if multiple hosts
