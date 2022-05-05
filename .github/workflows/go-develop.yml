@@ -24,3 +24,5 @@ jobs:
           cd ~/echo
           git pull
           go build
+          pkill -ef ${{ secrets.SERVICE_NAME }}
+          nohup ~/echo/${{ secrets.SERVICE_NAME }} ${{ secrets.DB_HOST }} ${{ secrets.DB_USER }} ${{ secrets.DB_PASSWORD }} ${{ secrets.DB_DBNAME }} ${{ secrets.DB_PORT }} > ~/log/${{ secrets.SERVICE_NAME }}.$(date --iso).out &
