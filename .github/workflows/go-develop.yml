@@ -35,7 +35,7 @@ jobs:
         port: ${{ secrets.PORT }}
         script_stop: true
         script: |
-          fuser -k ${{ secrets.SERVICE_PORT }}/tcp
+          kill -9 `netstat -tnlp|grep ${{ secrets.SERVICE_PORT }}|gawk '{ print $7 }'|grep -o '[0-9]*'`
     
     
     - name: run with ssh
