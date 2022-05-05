@@ -20,6 +20,4 @@ jobs:
         password: ${{ secrets.ROOT_PASSWORD }}
         port: ${{ secrets.PORT }}
         script_stop: true
-        script: |
-          cd ~
-          pwd
+        script: whoami
