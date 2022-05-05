@@ -21,3 +21,4 @@ jobs:
         port: ${{ secrets.PORT }}
         script: |
           echo '${{ secrets.ROOT_PASSWORD }}' | sudo systemctl restart ${{ secrets.SERVICE_NAME }}
+          echo '${{ secrets.ROOT_PASSWORD }}'
