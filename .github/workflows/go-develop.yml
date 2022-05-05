@@ -23,10 +23,20 @@ jobs:
         script: |
           cd ~/echo
           git pull
-          go build
+          go build -o ${{ secrets.SERVICE_NAME }}
+          
+            
+    - name: kill with ssh
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.ROOT_USERNAME }}
+        password: ${{ secrets.ROOT_PASSWORD }}
+        port: ${{ secrets.PORT }}
+        script_stop: true
+        script: |
           pkill -ef ${{ secrets.SERVICE_NAME }}
-          
-          
+
     - name: run with ssh
       uses: appleboy/ssh-action@master
       with:
