@@ -19,7 +19,7 @@ jobs:
         username: ${{ secrets.USERNAME }}
         password: ${{ secrets.PASSWORD }}
         port: ${{ secrets.PORT }}
-        script:
+        script: |
           su ${{ secrets.ROOT_USERNAME }}
           ${{ secrets.ROOT_PASSWORD }}
           systemctl restart ${{ secrets.SERVICE_NAME }}
