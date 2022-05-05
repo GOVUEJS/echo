@@ -21,6 +21,6 @@ jobs:
         port: ${{ secrets.PORT }}
         script_stop: true
         script: |
-          cd ~
-          pwd
-          git --version
+          cd ~/echo
+          git pull
+          go build
