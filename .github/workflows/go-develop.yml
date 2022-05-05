@@ -9,7 +9,7 @@ on:
 jobs:
 
   build:
-    name: Build
+    name: Build and deployment
     runs-on: ubuntu-latest
     steps:
     - name: build with ssh
@@ -24,8 +24,8 @@ jobs:
           cd ~/echo
           git pull
           go build -o ${{ secrets.SERVICE_NAME }}
-          
-            
+    
+    
     - name: kill with ssh
       uses: appleboy/ssh-action@master
       with:
@@ -35,8 +35,9 @@ jobs:
         port: ${{ secrets.PORT }}
         script_stop: true
         script: |
-          pkill -ef ${{ secrets.SERVICE_NAME }} && 1
-
+          fuser -k ${{ secrets.SERVICE_PORT }}/tcp
+    
+    
     - name: run with ssh
       uses: appleboy/ssh-action@master
       with:
