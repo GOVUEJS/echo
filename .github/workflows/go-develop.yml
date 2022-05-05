@@ -47,4 +47,4 @@ jobs:
         port: ${{ secrets.PORT }}
         script_stop: true
         script: |
-          nohup ~/echo/${{ secrets.SERVICE_NAME }} ${{ secrets.DB_HOST }} ${{ secrets.DB_USER }} ${{ secrets.DB_PASSWORD }} ${{ secrets.DB_DBNAME }} ${{ secrets.DB_PORT }} > ~/log/${{ secrets.SERVICE_NAME }}.$(date --iso).out &
+          nohup ~/echo/${{ secrets.SERVICE_NAME }} ${{ secrets.DB_HOST }} ${{ secrets.DB_USER }} ${{ secrets.DB_PASSWORD }} ${{ secrets.DB_DBNAME }} ${{ secrets.DB_PORT }} > ~/log/${{ secrets.SERVICE_NAME }}.$(date --iso).log &
