@@ -21,5 +21,6 @@ jobs:
         port: ${{ secrets.PORT }}
         script_stop: true
         script: |
-          echo '${{ secrets.ROOT_PASSWORD }}' | sudo -S systemctl restart ${{ secrets.SERVICE_NAME }}
-          echo 'TEST!'
+          sudo -S systemctl restart ${{ secrets.SERVICE_NAME }}
+          cd ~
+          pwd
