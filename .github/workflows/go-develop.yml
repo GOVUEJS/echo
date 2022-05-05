@@ -35,7 +35,7 @@ jobs:
         port: ${{ secrets.PORT }}
         script_stop: true
         script: |
-          pkill -ef ${{ secrets.SERVICE_NAME }}
+          pkill -ef ${{ secrets.SERVICE_NAME }} && 1
 
     - name: run with ssh
       uses: appleboy/ssh-action@master
