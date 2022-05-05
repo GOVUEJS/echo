@@ -16,8 +16,8 @@ jobs:
       uses: appleboy/ssh-action@master
       with:
         host: ${{ secrets.HOST }}
-        username: ${{ secrets.USERNAME }}
-        password: ${{ secrets.PASSWORD }}
+        username: ${{ secrets.ROOT_USERNAME }}
+        password: ${{ secrets.ROOT_PASSWORD }}
         port: ${{ secrets.PORT }}
         script: |
-          echo '${{ secrets.ROOT_PASSWORD }}' | sudo systemctl restart ${{ secrets.SERVICE_NAME }}
+          systemctl restart ${{ secrets.SERVICE_NAME }}
