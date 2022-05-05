@@ -12,7 +12,7 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
     steps:
-    - name: executing remote ssh commands using password
+    - name: build with ssh
       uses: appleboy/ssh-action@master
       with:
         host: ${{ secrets.HOST }}
@@ -25,4 +25,15 @@ jobs:
           git pull
           go build
           pkill -ef ${{ secrets.SERVICE_NAME }}
+          
+          
+    - name: run with ssh
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.ROOT_USERNAME }}
+        password: ${{ secrets.ROOT_PASSWORD }}
+        port: ${{ secrets.PORT }}
+        script_stop: true
+        script: |
           nohup ~/echo/${{ secrets.SERVICE_NAME }} ${{ secrets.DB_HOST }} ${{ secrets.DB_USER }} ${{ secrets.DB_PASSWORD }} ${{ secrets.DB_DBNAME }} ${{ secrets.DB_PORT }} > ~/log/${{ secrets.SERVICE_NAME }}.$(date --iso).out &
