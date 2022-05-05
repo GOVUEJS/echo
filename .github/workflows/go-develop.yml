@@ -21,6 +21,5 @@ jobs:
         port: ${{ secrets.PORT }}
         script_stop: true
         script: |
-          sudo -S systemctl restart ${{ secrets.SERVICE_NAME }}
           cd ~
           pwd
