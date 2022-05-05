@@ -94,25 +94,34 @@ func main() {
 	})
 
 	e.PUT("/articles/:id", func(c echo.Context) error {
+		id := c.Param("id")
+		idInt, err := strconv.Atoi(id)
+		if err != nil {
+			return c.String(http.StatusBadRequest, "Wrong Id")
+		}
+
 		articleData := new(article)
 		if err = c.Bind(articleData); err != nil {
 			return c.String(http.StatusBadRequest, "Wrong Parameters")
 		}
+		articleData.Id = idInt
 
 		// 수정 - product의 price를 200으로
-		db.Model(article{Id: articleData.Id}).Updates(articleData)
+		db.Model(&article{Id: articleData.Id}).Updates(articleData)
 
 		return c.String(http.StatusOK, "PUT Success")
 	})
 
 	e.DELETE("/articles/:id", func(c echo.Context) error {
-		articleData := new(article)
-		if err = c.Bind(articleData); err != nil {
-			return c.String(http.StatusBadRequest, "Wrong Parameters")
+		id := c.Param("id")
+		idInt, err := strconv.Atoi(id)
+		if err != nil {
+			return c.String(http.StatusBadRequest, "Wrong Id")
 		}
 
 		// 삭제 - articleData 삭제하기
-		db.Delete(&articleData, 1)
+		d := db.Delete(&article{}, idInt)
+		_ = d
 
 		return c.String(http.StatusOK, "DELETE Success")
 	})
