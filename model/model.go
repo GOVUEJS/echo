@@ -1,10 +1,14 @@
 package model
 
-import "gorm.io/gorm"
+import (
+	"time"
+)
 
 type Article struct {
-	gorm.Model
-	Id      int `gorm:"primarykey"`
-	Title   string
-	Content string
+	Id        int       `gorm:"primarykey" json:"id"`
+	Title     string    `json:"title" json:"title"`
+	Content   string    `json:"content"`
+	CreatedAt time.Time `json:"-"`
+	UpdatedAt time.Time `json:"date"`
+	DeletedAt time.Time `gorm:"index" json:"-"`
 }
