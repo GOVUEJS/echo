@@ -45,8 +45,8 @@ jobs:
         password: ${{ secrets.ROOT_PASSWORD }}
         port: ${{ secrets.PORT }}
         script_stop: false
-        script: |
-          kill -9 `netstat -tnlp|grep ${{ secrets.SERVICE_PORT }}|gawk '{ print $7 }'|grep -o '[0-9]*'`
+        #script: |
+       #   kill -9 `netstat -tnlp|grep ${{ secrets.SERVICE_PORT }}|gawk '{ print $7 }'|grep -o '[0-9]*'`
     
     
     - name: run with ssh
