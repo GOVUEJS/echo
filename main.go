@@ -4,14 +4,16 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"net/http"
+	"os"
+	"strconv"
+
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 	"myapp/model"
-	"net/http"
-	"strconv"
 )
 
 func main() {
@@ -21,6 +23,27 @@ func main() {
 	dbname := flag.String("dbname", "", "dbname")
 	port := flag.String("port", "", "port")
 	flag.Parse()
+
+	if "" == *host {
+		fmt.Println("Please enter the host flag")
+		os.Exit(1)
+	}
+	if "" == *user {
+		fmt.Println("Please enter the user flag")
+		os.Exit(2)
+	}
+	if "" == *password {
+		fmt.Println("Please enter the password flag")
+		os.Exit(3)
+	}
+	if "" == *dbname {
+		fmt.Println("Please enter the dbname flag")
+		os.Exit(4)
+	}
+	if "" == *port {
+		fmt.Println("Please enter the port flag")
+		os.Exit(5)
+	}
 
 	dsn := fmt.Sprintf(`host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=Asia/Seoul`, *host, *user, *password, *dbname, *port)
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
