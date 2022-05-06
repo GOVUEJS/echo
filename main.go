@@ -12,13 +12,6 @@ import (
 	"strconv"
 )
 
-type article struct {
-	gorm.Model
-	Id      int `gorm:"primarykey"`
-	Title   string
-	Content string
-}
-
 func main() {
 	host := flag.String("host", "", "host")
 	user := flag.String("user", "", "user")
@@ -34,7 +27,7 @@ func main() {
 	}
 
 	// 테이블 자동 생성
-	if err := db.AutoMigrate(&article{}); err != nil {
+	if err := db.AutoMigrate(&Article{}); err != nil {
 		return
 	}
 
@@ -49,7 +42,7 @@ func main() {
 	})
 
 	e.GET("/articles", func(c echo.Context) error {
-		var articles []article
+		var articles []Article
 		result := db.Find(&articles)
 		if result.RowsAffected == 0 {
 			return c.String(http.StatusOK, "No articles")
@@ -63,7 +56,7 @@ func main() {
 	})
 
 	e.POST("/articles", func(c echo.Context) error {
-		article := new(article)
+		article := new(Article)
 		if err = c.Bind(article); err != nil {
 			return c.String(http.StatusBadRequest, "Wrong Parameters")
 		}
@@ -82,10 +75,10 @@ func main() {
 			return c.String(http.StatusBadRequest, "Wrong Id")
 		}
 
-		article := article{Id: idInt}
+		article := Article{Id: idInt}
 
 		// 읽기
-		db.First(&article, id) // primary key기준으로 article 찾기
+		db.First(&article, id) // primary key기준으로 Article 찾기
 
 		marshal, err := json.Marshal(article)
 		if err != nil {
@@ -101,14 +94,14 @@ func main() {
 			return c.String(http.StatusBadRequest, "Wrong Id")
 		}
 
-		articleData := new(article)
+		articleData := new(Article)
 		if err = c.Bind(articleData); err != nil {
 			return c.String(http.StatusBadRequest, "Wrong Parameters")
 		}
 		articleData.Id = idInt
 
 		// 수정 - product의 price를 200으로
-		db.Model(&article{Id: articleData.Id}).Updates(articleData)
+		db.Model(&Article{Id: articleData.Id}).Updates(articleData)
 
 		return c.String(http.StatusOK, "PUT Success")
 	})
@@ -121,7 +114,7 @@ func main() {
 		}
 
 		// 삭제 - articleData 삭제하기
-		d := db.Delete(&article{}, idInt)
+		d := db.Delete(&Article{}, idInt)
 		_ = d
 
 		return c.String(http.StatusOK, "DELETE Success")
