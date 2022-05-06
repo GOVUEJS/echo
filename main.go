@@ -47,7 +47,7 @@ func main() {
 
 	e.GET("/articles", func(c echo.Context) error {
 		var articles []model.Article
-		result := db.Find(&articles)
+		result := db.Order("id desc").Find(&articles)
 		if result.RowsAffected == 0 {
 			return c.String(http.StatusOK, "No articles")
 		}
