@@ -8,6 +8,7 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"myapp/model"
 	"net/http"
 	"strconv"
 )
@@ -27,7 +28,7 @@ func main() {
 	}
 
 	// 테이블 자동 생성
-	if err := db.AutoMigrate(&Article{}); err != nil {
+	if err := db.AutoMigrate(&model.Article{}); err != nil {
 		return
 	}
 
@@ -42,7 +43,7 @@ func main() {
 	})
 
 	e.GET("/articles", func(c echo.Context) error {
-		var articles []Article
+		var articles []model.Article
 		result := db.Find(&articles)
 		if result.RowsAffected == 0 {
 			return c.String(http.StatusOK, "No articles")
@@ -56,7 +57,7 @@ func main() {
 	})
 
 	e.POST("/articles", func(c echo.Context) error {
-		article := new(Article)
+		article := new(model.Article)
 		if err = c.Bind(article); err != nil {
 			return c.String(http.StatusBadRequest, "Wrong Parameters")
 		}
@@ -75,7 +76,7 @@ func main() {
 			return c.String(http.StatusBadRequest, "Wrong Id")
 		}
 
-		article := Article{Id: idInt}
+		article := model.Article{Id: idInt}
 
 		// 읽기
 		db.First(&article, id) // primary key기준으로 Article 찾기
@@ -94,14 +95,14 @@ func main() {
 			return c.String(http.StatusBadRequest, "Wrong Id")
 		}
 
-		articleData := new(Article)
+		articleData := new(model.Article)
 		if err = c.Bind(articleData); err != nil {
 			return c.String(http.StatusBadRequest, "Wrong Parameters")
 		}
 		articleData.Id = idInt
 
 		// 수정 - product의 price를 200으로
-		db.Model(&Article{Id: articleData.Id}).Updates(articleData)
+		db.Model(&model.Article{Id: articleData.Id}).Updates(articleData)
 
 		return c.String(http.StatusOK, "PUT Success")
 	})
@@ -114,7 +115,7 @@ func main() {
 		}
 
 		// 삭제 - articleData 삭제하기
-		d := db.Delete(&Article{}, idInt)
+		d := db.Delete(&model.Article{}, idInt)
 		_ = d
 
 		return c.String(http.StatusOK, "DELETE Success")
