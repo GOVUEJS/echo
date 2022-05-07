@@ -136,19 +136,19 @@ func main() {
 		return c.String(http.StatusOK, "PUT Success")
 	})
 
-	apiV1Group.DELETE("/articles/:id", func(c echo.Context) error {
-		id := c.Param("id")
-		idInt, err := strconv.Atoi(id)
-		if err != nil {
-			return c.String(http.StatusBadRequest, "Wrong Id")
-		}
-
-		// 삭제 - articleData 삭제하기
-		d := db.Delete(&model.Article{}, idInt)
-		_ = d
-
-		return c.String(http.StatusOK, "DELETE Success")
-	})
+	//apiV1Group.DELETE("/articles/:id", func(c echo.Context) error {
+	//	id := c.Param("id")
+	//	idInt, err := strconv.Atoi(id)
+	//	if err != nil {
+	//		return c.String(http.StatusBadRequest, "Wrong Id")
+	//	}
+	//
+	//	// 삭제 - articleData 삭제하기
+	//	d := db.Delete(&model.Article{}, idInt)
+	//	_ = d
+	//
+	//	return c.String(http.StatusOK, "DELETE Success")
+	//})
 
 	e.Logger.Fatal(e.Start(":1323"))
 }
