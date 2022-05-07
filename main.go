@@ -70,7 +70,8 @@ func main() {
 		return c.String(http.StatusOK, "Hello, World!")
 	})
 
-	e.GET("/articles", func(c echo.Context) error {
+	apiV1Group := e.Group("/api/v1")
+	apiV1Group.GET("/articles", func(c echo.Context) error {
 		var articles []model.Article
 		result := db.Order("id desc").Find(&articles)
 		if result.RowsAffected == 0 {
@@ -84,7 +85,7 @@ func main() {
 		return c.String(http.StatusOK, string(marshal))
 	})
 
-	e.POST("/articles", func(c echo.Context) error {
+	apiV1Group.POST("/articles", func(c echo.Context) error {
 		article := new(model.Article)
 		if err = c.Bind(article); err != nil {
 			return c.String(http.StatusBadRequest, "Wrong Parameters")
@@ -96,7 +97,7 @@ func main() {
 		return c.String(http.StatusOK, "POST Success")
 	})
 
-	e.GET("/articles/:id", func(c echo.Context) error {
+	apiV1Group.GET("/articles/:id", func(c echo.Context) error {
 		id := c.Param("id")
 
 		idInt, err := strconv.Atoi(id)
@@ -116,7 +117,7 @@ func main() {
 		return c.String(http.StatusOK, string(marshal))
 	})
 
-	e.PUT("/articles/:id", func(c echo.Context) error {
+	apiV1Group.PUT("/articles/:id", func(c echo.Context) error {
 		id := c.Param("id")
 		idInt, err := strconv.Atoi(id)
 		if err != nil {
@@ -135,7 +136,7 @@ func main() {
 		return c.String(http.StatusOK, "PUT Success")
 	})
 
-	e.DELETE("/articles/:id", func(c echo.Context) error {
+	apiV1Group.DELETE("/articles/:id", func(c echo.Context) error {
 		id := c.Param("id")
 		idInt, err := strconv.Atoi(id)
 		if err != nil {
