@@ -8,12 +8,30 @@ import (
 	"os"
 )
 
+var (
+	host     *string
+	user     *string
+	password *string
+	dbname   *string
+	port     *string
+)
+
 func main() {
-	host := flag.String("host", "", "host")
-	user := flag.String("user", "", "user")
-	password := flag.String("password", "", "password")
-	dbname := flag.String("dbname", "", "dbname")
-	port := flag.String("port", "", "port")
+	err := database.InitRDB(host, user, password, dbname, port)
+	if err != nil {
+		panic(err)
+	}
+
+	e := router.InitRouter()
+	e.Logger.Fatal(e.Start(":1323"))
+}
+
+func init() {
+	host = flag.String("host", "", "host")
+	user = flag.String("user", "", "user")
+	password = flag.String("password", "", "password")
+	dbname = flag.String("dbname", "", "dbname")
+	port = flag.String("port", "", "port")
 	flag.Parse()
 
 	if "" == *host {
@@ -36,12 +54,4 @@ func main() {
 		fmt.Println("Please enter the port flag")
 		os.Exit(5)
 	}
-
-	err := database.InitRDB(host, user, password, dbname, port)
-	if err != nil {
-		panic(err)
-	}
-
-	e := router.InitRouter()
-	e.Logger.Fatal(e.Start(":1323"))
 }
