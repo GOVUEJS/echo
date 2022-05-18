@@ -146,7 +146,7 @@ func main() {
 	//	// 삭제 - articleData 삭제하기
 	//	d := db.Delete(&model.Article{}, idInt)
 	//	_ = d
-	//
+	//ㄴ
 	//	return c.String(http.StatusOK, "DELETE Success")
 	//})
 
