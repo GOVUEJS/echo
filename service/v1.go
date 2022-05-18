@@ -64,24 +64,22 @@ func PostArticle(c echo.Context) error {
 }
 
 func PutArticle(c echo.Context) error {
-	db := database.GetRDB()
-
 	id := c.Param("id")
 	idInt, err := strconv.Atoi(id)
 	if err != nil {
-		return c.String(http.StatusBadRequest, "Wrong Id")
+		return util.Response(c, http.StatusBadRequest, "Wrong Id", nil)
 	}
 
 	articleData := new(model.Article)
 	if err = c.Bind(articleData); err != nil {
-		return c.String(http.StatusBadRequest, "Wrong Parameters")
+		return util.Response(c, http.StatusBadRequest, "Wrong Parameters", nil)
 	}
 	articleData.Id = idInt
 
 	// 수정 - product의 price를 200으로
-	db.Model(&model.Article{Id: articleData.Id}).Updates(articleData)
+	rdb.Model(&model.Article{Id: articleData.Id}).Updates(articleData)
 
-	return c.String(http.StatusOK, "PUT Success")
+	return util.Response(c, http.StatusOK, "PUT Success", nil)
 }
 
 func DeleteArticle(c echo.Context) error {
