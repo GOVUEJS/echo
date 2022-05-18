@@ -7,27 +7,28 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 	"myapp/model"
+	"myapp/util"
 )
 
-var rdb *gorm.DB
+var (
+	rdb *gorm.DB
+)
 
-func InitRDB(host *string, user *string, password *string, dbname *string, port *string) error {
-	dsn := fmt.Sprintf(`host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=Asia/Seoul`, *host, *user, *password, *dbname, *port)
+func InitRDB() {
+	dsn := fmt.Sprintf(`host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=Asia/Seoul`, *util.Host, *util.User, *util.Password, *util.DbName, *util.Port)
 
 	var err error
 	rdb, err = gorm.Open(postgres.Open(dsn), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Info),
 	})
 	if err != nil {
-		return errors.New("db 연결에 실패하였습니다")
+		panic(errors.New("db 연결에 실패하였습니다"))
 	}
 
 	err = autoMigrate()
 	if err != nil {
-		return err
+		panic(err)
 	}
-
-	return err
 }
 
 func autoMigrate() error {
@@ -38,5 +39,8 @@ func autoMigrate() error {
 }
 
 func GetRDB() *gorm.DB {
+	if rdb == nil {
+		InitRDB()
+	}
 	return rdb
 }

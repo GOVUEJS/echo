@@ -22,3 +22,7 @@ type Article struct {
 type GetArticleListResponse struct {
 	ArticleList []Article `json:"articleList"`
 }
+
+type GetArticleResponse struct {
+	Article Article `json:"article"`
+}

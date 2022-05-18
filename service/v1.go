@@ -1,8 +1,8 @@
 package service
 
 import (
-	"encoding/json"
 	"github.com/labstack/echo/v4"
+	"gorm.io/gorm"
 	"myapp/database"
 	"myapp/model"
 	"myapp/util"
@@ -10,15 +10,22 @@ import (
 	"strconv"
 )
 
+var (
+	rdb *gorm.DB
+)
+
+func init() {
+	rdb = database.GetRDB()
+}
+
 func GetMain(c echo.Context) error {
 	return c.String(http.StatusOK, "Hello, World!")
 }
 
 func GetArticleList(c echo.Context) error {
 	response := &model.GetArticleListResponse{}
-	db := database.GetRDB()
 
-	result := db.Order("id desc").Find(&response.ArticleList)
+	result := rdb.Order("id desc").Find(&response.ArticleList)
 	if result.RowsAffected == 0 {
 		return util.Response(c, http.StatusOK, "No articles", nil)
 	}
@@ -27,25 +34,21 @@ func GetArticleList(c echo.Context) error {
 }
 
 func GetArticle(c echo.Context) error {
-	db := database.GetRDB()
-
 	id := c.Param("id")
+
+	response := &model.GetArticleResponse{}
 
 	idInt, err := strconv.Atoi(id)
 	if err != nil {
-		return c.String(http.StatusBadRequest, "Wrong Id")
+		return util.Response(c, http.StatusBadRequest, "Wrong Id", nil)
 	}
 
-	article := model.Article{Id: idInt}
+	response.Article.Id = idInt
 
 	// 읽기
-	db.First(&article, id) // primary key기준으로 Article 찾기
+	rdb.First(&response.Article, id) // primary key기준으로 Article 찾기
 
-	marshal, err := json.Marshal(article)
-	if err != nil {
-		return c.String(http.StatusInternalServerError, "Server Error")
-	}
-	return c.String(http.StatusOK, string(marshal))
+	return util.Response(c, http.StatusOK, "", response)
 }
 
 func PostArticle(c echo.Context) error {
