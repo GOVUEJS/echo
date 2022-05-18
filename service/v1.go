@@ -83,17 +83,17 @@ func PutArticle(c echo.Context) error {
 }
 
 func DeleteArticle(c echo.Context) error {
-	db := database.GetRDB()
-
 	id := c.Param("id")
 	idInt, err := strconv.Atoi(id)
 	if err != nil {
-		return c.String(http.StatusBadRequest, "Wrong Id")
+		return util.Response(c, http.StatusBadRequest, "Wrong Id", nil)
 	}
 
 	// 삭제 - articleData 삭제하기
-	d := db.Delete(&model.Article{}, idInt)
-	_ = d
+	tx := rdb.Delete(&model.Article{}, idInt)
+	if tx.RowsAffected == 0 {
+		return util.Response(c, http.StatusBadRequest, "Id not found", nil)
+	}
 
-	return c.String(http.StatusOK, "DELETE Success")
+	return util.Response(c, http.StatusOK, "DELETE Success", nil)
 }
