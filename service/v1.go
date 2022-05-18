@@ -56,13 +56,13 @@ func PostArticle(c echo.Context) error {
 
 	article := new(model.Article)
 	if err := c.Bind(article); err != nil {
-		return c.String(http.StatusBadRequest, "Wrong Parameters")
+		return util.Response(c, http.StatusBadRequest, "Wrong Parameters", nil)
 	}
 
 	// 생성
 	db.Create(&article)
 
-	return c.String(http.StatusOK, "POST Success")
+	return util.Response(c, http.StatusOK, "POST Success", nil)
 }
 
 func PutArticle(c echo.Context) error {
