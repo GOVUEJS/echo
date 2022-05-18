@@ -5,6 +5,11 @@ import (
 	"time"
 )
 
+type ApiResponse struct {
+	ErrCode *int    `json:"errCode,omitempty"`
+	Message *string `json:"message,omitempty"`
+}
+
 type Article struct {
 	Id        int            `gorm:"primaryKey" json:"id"`
 	Title     string         `json:"title" json:"title"`
@@ -12,4 +17,8 @@ type Article struct {
 	CreatedAt time.Time      `json:"-"`
 	UpdatedAt time.Time      `json:"date"`
 	DeletedAt gorm.DeletedAt `gorm:"index" json:"-"`
+}
+
+type GetArticleListResponse struct {
+	ArticleList []Article `json:"articleList"`
 }

@@ -5,6 +5,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"myapp/database"
 	"myapp/model"
+	"myapp/util"
 	"net/http"
 	"strconv"
 )
@@ -14,18 +15,15 @@ func GetMain(c echo.Context) error {
 }
 
 func GetArticleList(c echo.Context) error {
+	response := &model.GetArticleListResponse{}
 	db := database.GetRDB()
-	var articles []model.Article
-	result := db.Order("id desc").Find(&articles)
+
+	result := db.Order("id desc").Find(&response.ArticleList)
 	if result.RowsAffected == 0 {
-		return c.String(http.StatusOK, "No articles")
+		return util.Response(c, http.StatusOK, "No articles", nil)
 	}
 
-	marshal, err := json.Marshal(articles)
-	if err != nil {
-		return c.String(http.StatusInternalServerError, "Server Error")
-	}
-	return c.String(http.StatusOK, string(marshal))
+	return util.Response(c, http.StatusOK, "", response)
 }
 
 func GetArticle(c echo.Context) error {
