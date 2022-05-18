@@ -4,15 +4,13 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"myapp/database"
 	"net/http"
 	"os"
 	"strconv"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
 	"myapp/model"
 )
 
@@ -45,15 +43,13 @@ func main() {
 		os.Exit(5)
 	}
 
-	dsn := fmt.Sprintf(`host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=Asia/Seoul`, *host, *user, *password, *dbname, *port)
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
-		Logger: logger.Default.LogMode(logger.Info),
-	})
+	err := database.InitRDB(host, user, password, dbname, port)
 	if err != nil {
-		panic("Db 연결에 실패하였습니다. ")
+		panic(err)
 	}
 
 	// 테이블 자동 생성
+	db := database.GetRDB()
 	if err := db.AutoMigrate(&model.Article{}); err != nil {
 		return
 	}
@@ -136,19 +132,19 @@ func main() {
 		return c.String(http.StatusOK, "PUT Success")
 	})
 
-	//apiV1Group.DELETE("/articles/:id", func(c echo.Context) error {
-	//	id := c.Param("id")
-	//	idInt, err := strconv.Atoi(id)
-	//	if err != nil {
-	//		return c.String(http.StatusBadRequest, "Wrong Id")
-	//	}
-	//
-	//	// 삭제 - articleData 삭제하기
-	//	d := db.Delete(&model.Article{}, idInt)
-	//	_ = d
-	//
-	//	return c.String(http.StatusOK, "DELETE Success")
-	//})
+	apiV1Group.DELETE("/articles/:id", func(c echo.Context) error {
+		id := c.Param("id")
+		idInt, err := strconv.Atoi(id)
+		if err != nil {
+			return c.String(http.StatusBadRequest, "Wrong Id")
+		}
+
+		// 삭제 - articleData 삭제하기
+		d := db.Delete(&model.Article{}, idInt)
+		_ = d
+
+		return c.String(http.StatusOK, "DELETE Success")
+	})
 
 	e.Logger.Fatal(e.Start(":1323"))
 }
