@@ -52,15 +52,13 @@ func GetArticle(c echo.Context) error {
 }
 
 func PostArticle(c echo.Context) error {
-	db := database.GetRDB()
-
 	article := new(model.Article)
 	if err := c.Bind(article); err != nil {
 		return util.Response(c, http.StatusBadRequest, "Wrong Parameters", nil)
 	}
 
 	// 생성
-	db.Create(&article)
+	rdb.Create(&article)
 
 	return util.Response(c, http.StatusOK, "POST Success", nil)
 }
