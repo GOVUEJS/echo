@@ -13,5 +13,5 @@ func InitRouter(e *echo.Echo) {
 	apiV1Group.POST("/articles", service.PostArticle)
 	apiV1Group.GET("/articles/:id", service.GetArticle)
 	apiV1Group.PUT("/articles/:id", service.PutArticle)
-	apiV1Group.DELETE("/articles/:id", service.DeleteArticle)
+	//apiV1Group.DELETE("/articles/:id", service.DeleteArticle)
 }
