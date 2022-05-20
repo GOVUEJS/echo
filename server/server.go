@@ -3,6 +3,7 @@ package server
 import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"github.com/labstack/gommon/random"
 	"myapp/router"
 )
 
@@ -12,6 +13,12 @@ var (
 
 func init() {
 	e = echo.New()
+
+	e.Use(middleware.RequestIDWithConfig(middleware.RequestIDConfig{
+		Generator: func() string {
+			return random.String(32)
+		},
+	}))
 
 	e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
 		Format: `{` +
@@ -33,10 +40,10 @@ func init() {
 	}))
 
 	e.Use(middleware.CORS())
+
+	router.InitRouter(e)
 }
 
 func InitEcho() {
-	router.InitRouter(e)
-
 	e.Logger.Fatal(e.Start(":1323"))
 }
