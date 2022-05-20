@@ -25,7 +25,7 @@ func init() {
 	}))
 
 	writer := &lumberjack.Logger{
-		Filename:   "/var/log/echo.log",
+		Filename:   "/var/log/HWISECHO/echo.log",
 		MaxSize:    500, // megabytes
 		MaxBackups: 28,
 		MaxAge:     28,    //days
