@@ -29,6 +29,10 @@ func Response(c echo.Context, status int, message string, data interface{}) erro
 	return c.JSON(status, response)
 }
 
+func ResponseNoContent(c echo.Context, status int) error {
+	return c.NoContent(status)
+}
+
 func GetPagination(sql *gorm.DB, page int) (current, total int64) {
 	var totalCount int64
 	sql.Count(&totalCount)
