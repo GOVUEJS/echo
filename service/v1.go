@@ -30,6 +30,11 @@ func GetArticleList(c echo.Context) error {
 		return util.Response(c, http.StatusOK, "No articles", nil)
 	}
 
+	for idx, article := range response.ArticleList {
+		date := article.UpdatedAt.Format("2006-01-02 15:04")
+		response.ArticleList[idx].Date = &date
+	}
+
 	return util.Response(c, http.StatusOK, "", response)
 }
 
