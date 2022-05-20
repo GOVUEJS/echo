@@ -14,6 +14,7 @@ type GetArticleList struct {
 type GetArticleListResponse struct {
 	ArticleList []GetArticleList `json:"articleList"`
 	TotalPage   int64            `json:"totalPage"`
+	Current     int64            `json:"current"`
 }
 
 type GetArticle struct {

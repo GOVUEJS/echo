@@ -23,19 +23,29 @@ func GetMain(c echo.Context) error {
 }
 
 func GetArticleList(c echo.Context) error {
+	pageParam := c.QueryParam("page")
+	page, err := strconv.Atoi(pageParam)
+	if err != nil {
+		page = 1
+	}
+
 	response := &model.GetArticleListResponse{}
 
-	result := rdb.
+	sql := rdb.
 		Model(&model.Article{}).
 		Select([]string{"id", "title", "TO_CHAR(updated_at, 'YYYY-MM-DD HH24:MI') date"}).
-		Order("id desc").
+		Order("id desc")
+
+	current, total := util.GetPagination(sql, page)
+	response.Current = current
+	response.TotalPage = total
+
+	offset, limit := util.GetPageOffsetLimit(page)
+	sql.Limit(limit).
+		Offset(offset).
 		Find(&response.ArticleList)
 
-	var totalCount int64
-	result.Count(&totalCount)
-	response.TotalPage = util.GetTotalPage(totalCount)
-
-	if result.RowsAffected == 0 {
+	if sql.RowsAffected == 0 {
 		return util.Response(c, http.StatusOK, "No articles", nil)
 	}
 

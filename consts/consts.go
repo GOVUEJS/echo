@@ -1,5 +1,5 @@
 package consts
 
 const (
-	PageSize = 20
+	PageSize = 15
 )
