@@ -25,14 +25,14 @@ func GetMain(c echo.Context) error {
 func GetArticleList(c echo.Context) error {
 	response := &model.GetArticleListResponse{}
 
-	result := rdb.Order("id desc").Find(&response.ArticleList)
+	result := rdb.
+		Model(&model.Article{}).
+		Select([]string{"id", "title", "TO_CHAR(updated_at, 'YYYY-MM-DD HH24:MI') date"}).
+		Order("id desc").
+		Find(&response.ArticleList)
+
 	if result.RowsAffected == 0 {
 		return util.Response(c, http.StatusOK, "No articles", nil)
-	}
-
-	for idx, article := range response.ArticleList {
-		date := article.UpdatedAt.Format("2006-01-02 15:04")
-		response.ArticleList[idx].Date = &date
 	}
 
 	return util.Response(c, http.StatusOK, "", response)
@@ -51,7 +51,10 @@ func GetArticle(c echo.Context) error {
 	response.Article.Id = idInt
 
 	// 읽기
-	rdb.First(&response.Article, id) // primary key기준으로 Article 찾기
+	rdb.
+		Model(&model.Article{}).
+		Select([]string{"id", "title", "content", "TO_CHAR(updated_at, 'YYYY-MM-DD HH24:MI') date"}).
+		First(&response.Article, id) // primary key기준으로 Article 찾기
 
 	return util.Response(c, http.StatusOK, "", response)
 }
