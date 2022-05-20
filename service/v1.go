@@ -45,10 +45,6 @@ func GetArticleList(c echo.Context) error {
 		Offset(offset).
 		Find(&response.ArticleList)
 
-	if sql.RowsAffected == 0 {
-		return util.Response(c, http.StatusOK, "No articles", nil)
-	}
-
 	return util.Response(c, http.StatusOK, "", response)
 }
 
@@ -82,7 +78,7 @@ func PostArticle(c echo.Context) error {
 	// 생성
 	rdb.Create(&article)
 
-	return util.Response(c, http.StatusOK, "POST Success", nil)
+	return util.Response(c, http.StatusCreated, "POST Success", nil)
 }
 
 func PutArticle(c echo.Context) error {
