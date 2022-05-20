@@ -109,8 +109,8 @@ func DeleteArticle(c echo.Context) error {
 	// 삭제 - articleData 삭제하기
 	tx := rdb.Delete(&model.Article{}, idInt)
 	if tx.RowsAffected == 0 {
-		return util.Response(c, http.StatusBadRequest, "Id not found", nil)
+		return util.Response(c, http.StatusNotFound, "Id not found", nil)
 	}
 
-	return util.Response(c, http.StatusOK, "DELETE Success", nil)
+	return util.ResponseNoContent(c, http.StatusNoContent)
 }
