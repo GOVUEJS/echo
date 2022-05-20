@@ -3,6 +3,7 @@ package util
 import (
 	"encoding/json"
 	"github.com/labstack/echo/v4"
+	"myapp/consts"
 	"myapp/model"
 	"net/http"
 )
@@ -25,4 +26,12 @@ func Response(c echo.Context, status int, message string, data interface{}) erro
 	}
 
 	return c.JSON(status, response)
+}
+
+func GetTotalPage(totalCount int64) (totalPage int64) {
+	totalPage = totalCount / consts.PageSize
+	if totalCount%consts.PageSize != 0 {
+		totalPage++
+	}
+	return
 }

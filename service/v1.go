@@ -31,6 +31,10 @@ func GetArticleList(c echo.Context) error {
 		Order("id desc").
 		Find(&response.ArticleList)
 
+	var totalCount int64
+	result.Count(&totalCount)
+	response.TotalPage = util.GetTotalPage(totalCount)
+
 	if result.RowsAffected == 0 {
 		return util.Response(c, http.StatusOK, "No articles", nil)
 	}
@@ -84,7 +88,6 @@ func PutArticle(c echo.Context) error {
 	}
 	articleData.Id = idInt
 
-	// 수정 - product의 price를 200으로
 	rdb.Model(&model.Article{Id: articleData.Id}).Updates(articleData)
 
 	return util.Response(c, http.StatusOK, "PUT Success", nil)
