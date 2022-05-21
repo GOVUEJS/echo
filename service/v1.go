@@ -16,13 +16,13 @@ import (
 var (
 	rdb    *gorm.DB
 	redis  *database.Redis
-	jwtKey []byte
+	JwtKey []byte
 )
 
 func init() {
 	rdb = database.GetRDB()
 	redis = database.GetRedis()
-	jwtKey = []byte(random.String(32))
+	JwtKey = []byte(random.String(32))
 }
 
 func GetMain(c echo.Context) error {
@@ -45,41 +45,69 @@ func PostLogin(c echo.Context) error {
 		return echo.ErrUnauthorized
 	}
 
-	// Set custom claims
-	claims := &model.JwtCustomClaims{
+	// Set custom accessTokenClaims
+	accessTokenClaims := &model.JwtCustomClaims{
 		Email: user.Email,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(time.Hour * 1).Unix(),
 		},
 	}
 
-	cookie := new(http.Cookie)
-	cookie.Name = "login"
-	cookie.Value = user.Email
-	cookie.Expires = time.Now().Add(time.Hour)
-	c.SetCookie(cookie)
-
-	// Create token with claims
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	// Create token with accessTokenClaims
+	accessTokenJWT := jwt.NewWithClaims(jwt.SigningMethodHS256, accessTokenClaims)
 
 	// Generate encoded token and send it as response.
-	t, err := token.SignedString(jwtKey)
+	accessToken, err := accessTokenJWT.SignedString(JwtKey)
 	if err != nil {
 		return err
 	}
 
-	return util.Response(c, http.StatusOK, "", echo.Map{"accessToken": t})
+	c.SetCookie(&http.Cookie{
+		Name:    "accessToken",
+		Value:   accessToken,
+		Path:    "/",
+		Expires: time.Now().Add(1 * time.Hour),
+	})
+
+	// Set custom refreshTokenClaims
+	refreshTokenClaims := &model.JwtCustomClaims{
+		Email: user.Email,
+		StandardClaims: jwt.StandardClaims{
+			ExpiresAt: time.Now().Add(24 * time.Hour).Unix(),
+		},
+	}
+
+	// Create token with refreshTokenClaims
+	refreshTokenJWT := jwt.NewWithClaims(jwt.SigningMethodHS256, refreshTokenClaims)
+
+	// Generate encoded token and send it as response.
+	refreshToken, err := refreshTokenJWT.SignedString(JwtKey)
+	if err != nil {
+		return err
+	}
+
+	c.SetCookie(&http.Cookie{
+		Name:   "refreshToken",
+		Value:  refreshToken,
+		Path:   "/",
+		MaxAge: int(24 * time.Hour / time.Second),
+	})
+
+	return util.Response(c, http.StatusOK, "", nil)
 }
 
 func GetLogout(c echo.Context) error {
-
-	cookie := new(http.Cookie)
-	cookie.Name = "logout"
-	cookie.Value = "test"
-	cookie.Expires = time.Now().Add(1 * time.Hour)
-	c.SetCookie(cookie)
-
-	return util.ResponseNoContent(c, http.StatusOK)
+	c.SetCookie(&http.Cookie{
+		Name:   "accessToken",
+		Path:   "/",
+		MaxAge: -1,
+	})
+	c.SetCookie(&http.Cookie{
+		Name:   "refreshToken",
+		Path:   "/",
+		MaxAge: -1,
+	})
+	return util.Response(c, http.StatusOK, "", nil)
 }
 
 func GetArticleList(c echo.Context) error {
@@ -92,16 +120,17 @@ func GetArticleList(c echo.Context) error {
 	response := &model.GetArticleListResponse{}
 
 	sql := rdb.
-		Model(&model.Article{}).
-		Select([]string{"id", "title", "TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI') date"}).
-		Order("id desc")
+		Model(&model.Article{})
 
 	current, total := util.GetPagination(sql, page)
 	response.Current = current
 	response.TotalPage = total
 
 	offset, limit := util.GetPageOffsetLimit(page)
-	sql.Limit(limit).
+	sql.
+		Select([]string{"id", "title", "TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI') date"}).
+		Order("id desc").
+		Limit(limit).
 		Offset(offset).
 		Find(&response.ArticleList)
 
