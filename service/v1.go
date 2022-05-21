@@ -22,6 +22,14 @@ func GetMain(c echo.Context) error {
 	return c.String(http.StatusOK, "Hello, World!")
 }
 
+func PostLogin(c echo.Context) error {
+	return util.ResponseNoContent(c, http.StatusOK)
+}
+
+func GetLogout(c echo.Context) error {
+	return util.ResponseNoContent(c, http.StatusOK)
+}
+
 func GetArticleList(c echo.Context) error {
 	pageParam := c.QueryParam("page")
 	page, err := strconv.Atoi(pageParam)
@@ -64,7 +72,7 @@ func GetArticle(c echo.Context) error {
 	rdb.
 		Model(&model.Article{}).
 		Select([]string{"id", "title", "content", "TO_CHAR(updated_at, 'YYYY-MM-DD HH24:MI') date"}).
-		First(&response.Article, id) // primary key기준으로 Article 찾기
+		First(&response.Article, id) // primary key 기준으로 Article 찾기
 
 	return util.Response(c, http.StatusOK, "", response)
 }
@@ -84,7 +92,7 @@ func PostArticle(c echo.Context) error {
 func PutArticle(c echo.Context) error {
 	id := c.Param("id")
 	idInt, err := strconv.Atoi(id)
-	if err != nil {
+	if err != nil || idInt < 0 {
 		return util.Response(c, http.StatusBadRequest, "Wrong Id", nil)
 	}
 
@@ -92,7 +100,7 @@ func PutArticle(c echo.Context) error {
 	if err = c.Bind(articleData); err != nil {
 		return util.Response(c, http.StatusBadRequest, "Wrong Parameters", nil)
 	}
-	articleData.Id = idInt
+	articleData.Id = uint(idInt)
 
 	rdb.Model(&model.Article{Id: articleData.Id}).Updates(articleData)
 
