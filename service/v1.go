@@ -1,21 +1,26 @@
 package service
 
 import (
+	"github.com/golang-jwt/jwt"
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/gommon/random"
 	"gorm.io/gorm"
 	"myapp/database"
 	"myapp/model"
 	"myapp/util"
 	"net/http"
 	"strconv"
+	"time"
 )
 
 var (
-	rdb *gorm.DB
+	rdb    *gorm.DB
+	jwtKey []byte
 )
 
 func init() {
 	rdb = database.GetRDB()
+	jwtKey = []byte(random.String(32))
 }
 
 func GetMain(c echo.Context) error {
@@ -23,7 +28,35 @@ func GetMain(c echo.Context) error {
 }
 
 func PostLogin(c echo.Context) error {
-	return util.ResponseNoContent(c, http.StatusOK)
+	user := new(model.User)
+	if err := c.Bind(user); err != nil {
+		return err
+	}
+
+	// 로그인 인증
+	// Throws unauthorized error
+	if !database.Login(user.Email, user.Pw) {
+		return echo.ErrUnauthorized
+	}
+
+	// Set custom claims
+	claims := &model.JwtCustomClaims{
+		Email: user.Email,
+		StandardClaims: jwt.StandardClaims{
+			ExpiresAt: time.Now().Add(time.Hour * 1).Unix(),
+		},
+	}
+
+	// Create token with claims
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
+	// Generate encoded token and send it as response.
+	t, err := token.SignedString(jwtKey)
+	if err != nil {
+		return err
+	}
+
+	return util.Response(c, http.StatusOK, "", echo.Map{"accessToken": t})
 }
 
 func GetLogout(c echo.Context) error {
