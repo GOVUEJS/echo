@@ -54,7 +54,7 @@ func PostLogin(c echo.Context) error {
 	}
 
 	cookie := new(http.Cookie)
-	cookie.Name = "accessToken"
+	cookie.Name = "login"
 	cookie.Value = user.Email
 	cookie.Expires = time.Now().Add(time.Hour)
 	c.SetCookie(cookie)
