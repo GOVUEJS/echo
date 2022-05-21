@@ -41,8 +41,6 @@ func PostLogin(c echo.Context) error {
 		return err
 	}
 
-	// 로그인 인증
-	// Throws unauthorized error
 	if !database.Login(user.Email, user.Pw) {
 		return echo.ErrUnauthorized
 	}
@@ -74,6 +72,13 @@ func PostLogin(c echo.Context) error {
 }
 
 func GetLogout(c echo.Context) error {
+
+	cookie := new(http.Cookie)
+	cookie.Name = "logout"
+	cookie.Value = "test"
+	cookie.Expires = time.Now().Add(1 * time.Hour)
+	c.SetCookie(cookie)
+
 	return util.ResponseNoContent(c, http.StatusOK)
 }
 
