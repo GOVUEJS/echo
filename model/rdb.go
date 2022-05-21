@@ -15,6 +15,6 @@ type Article struct {
 }
 
 type User struct {
-	Email string `gorm:"type:varchar(50);primaryKey" json:"email"`
+	Email string `gorm:"primaryKey;type:varchar(50);comment:이메일" json:"email"`
 	Pw    string `gorm:"type:varchar(256);not null;comment:비밀번호" json:"pw"`
 }
