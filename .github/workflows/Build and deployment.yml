@@ -46,8 +46,7 @@ jobs:
         port: ${{ secrets.PORT }}
         script_stop: false
         script: |
-        #  sudo pkill ${{ secrets.SERVICE_NAME }}
-        #sudo kill -9 `netstat -tnlp|grep ${{ secrets.SERVICE_PORT }}|gawk '{ print $7 }'|grep -o '[0-9]*'`
+          sudo pkill ${{ secrets.SERVICE_NAME }}
           
     
     
