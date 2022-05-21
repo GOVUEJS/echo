@@ -15,16 +15,24 @@ import (
 
 var (
 	rdb    *gorm.DB
+	redis  *database.Redis
 	jwtKey []byte
 )
 
 func init() {
 	rdb = database.GetRDB()
+	redis = database.GetRedis()
 	jwtKey = []byte(random.String(32))
 }
 
 func GetMain(c echo.Context) error {
-	return c.String(http.StatusOK, "Hello, World!")
+	redis.Set("test", "test", 0)
+	value, err := redis.Get("test")
+	if err != nil {
+		return util.Response(c, http.StatusInternalServerError, "Redis Error", nil)
+	}
+
+	return util.Response(c, http.StatusOK, value, nil)
 }
 
 func PostLogin(c echo.Context) error {
@@ -74,7 +82,7 @@ func GetArticleList(c echo.Context) error {
 
 	sql := rdb.
 		Model(&model.Article{}).
-		Select([]string{"id", "title", "TO_CHAR(updated_at, 'YYYY-MM-DD HH24:MI') date"}).
+		Select([]string{"id", "title", "TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI') date"}).
 		Order("id desc")
 
 	current, total := util.GetPagination(sql, page)

@@ -6,6 +6,8 @@ import (
 )
 
 func main() {
+	database.InitRedis()
+
 	database.InitRDB()
 
 	server.InitEcho()

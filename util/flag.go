@@ -7,19 +7,21 @@ import (
 )
 
 var (
-	Host     *string
-	User     *string
-	Password *string
-	DbName   *string
-	Port     *string
+	Host      *string
+	User      *string
+	Password  *string
+	RdbName   *string
+	RdbPort   *string
+	RedisPort *string
 )
 
 func init() {
 	Host = flag.String("host", "", "host")
 	User = flag.String("user", "", "user")
 	Password = flag.String("password", "", "password")
-	DbName = flag.String("dbname", "", "dbname")
-	Port = flag.String("port", "", "port")
+	RdbName = flag.String("dbname", "", "dbname")
+	RdbPort = flag.String("port", "", "port")
+	RedisPort = flag.String("redisPort", "", "redisPort")
 	flag.Parse()
 
 	if "" == *Host {
@@ -34,12 +36,16 @@ func init() {
 		fmt.Println("Please enter the password flag")
 		os.Exit(3)
 	}
-	if "" == *DbName {
+	if "" == *RdbName {
 		fmt.Println("Please enter the dbname flag")
 		os.Exit(4)
 	}
-	if "" == *Port {
+	if "" == *RdbPort {
 		fmt.Println("Please enter the port flag")
+		os.Exit(5)
+	}
+	if "" == *RedisPort {
+		fmt.Println("Please enter the redisPort flag")
 		os.Exit(5)
 	}
 }

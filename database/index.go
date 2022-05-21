@@ -15,7 +15,7 @@ var (
 )
 
 func InitRDB() {
-	dsn := fmt.Sprintf(`host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=Asia/Seoul`, *util.Host, *util.User, *util.Password, *util.DbName, *util.Port)
+	dsn := fmt.Sprintf(`host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=Asia/Seoul`, *util.Host, *util.User, *util.Password, *util.RdbName, *util.RdbPort)
 
 	var err error
 	rdb, err = gorm.Open(postgres.Open(dsn), &gorm.Config{
