@@ -7,6 +7,7 @@ import (
 	"gopkg.in/natefinch/lumberjack.v2"
 	"io"
 	"myapp/router"
+	"net/http"
 	"os"
 	"time"
 )
@@ -60,7 +61,12 @@ func init() {
 		Output:           multiWriter,
 	}))
 
-	e.Use(middleware.CORS())
+	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+		AllowOrigins:     []string{"*"},
+		AllowMethods:     []string{http.MethodGet, http.MethodPost, http.MethodPut, http.MethodDelete},
+		ExposeHeaders:    []string{"Set-Cookie"},
+		AllowCredentials: true,
+	}))
 
 	router.InitRouter(e)
 }
