@@ -33,7 +33,10 @@ func InitRDB() {
 
 func autoMigrate() error {
 	if err := rdb.AutoMigrate(&model.Article{}); err != nil {
-		return errors.New("rdb auto migrate 실패")
+		return errors.New("rdb article auto migrate 실패")
+	}
+	if err := rdb.AutoMigrate(&model.User{}); err != nil {
+		return errors.New("rdb user auto migrate 실패")
 	}
 	return nil
 }
