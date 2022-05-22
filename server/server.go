@@ -19,6 +19,8 @@ var (
 func init() {
 	e = echo.New()
 
+	e.IPExtractor = echo.ExtractIPDirect()
+
 	e.Use(middleware.RequestIDWithConfig(middleware.RequestIDConfig{
 		Generator: func() string {
 			return random.String(32)

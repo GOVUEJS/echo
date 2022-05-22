@@ -61,9 +61,10 @@ func PostLogin(c echo.Context) error {
 		return err
 	}
 
+	ip := c.RealIP()
 	redisSession := model.RedisSession{
 		Email:        &user.Email,
-		Ip:           &c.Request().Host,
+		Ip:           &ip,
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
 	}
