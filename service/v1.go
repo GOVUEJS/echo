@@ -3,7 +3,6 @@ package service
 import (
 	"context"
 	"github.com/go-redis/redis/v8"
-	"github.com/golang-jwt/jwt"
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/gommon/random"
@@ -13,21 +12,18 @@ import (
 	"myapp/util"
 	"net/http"
 	"strconv"
-	"time"
 )
 
 var (
 	rdb          *gorm.DB
 	redisClient  *redis.Client
 	redisContext *context.Context
-	JwtKey       []byte
 )
 
 func init() {
 	rdb = database.GetRDB()
 	redisClient = database.GetRedis()
 	redisContext = database.GetRedisContext()
-	JwtKey = []byte(random.String(32))
 }
 
 func GetMain(c echo.Context) error {
@@ -58,52 +54,16 @@ func PostLogin(c echo.Context) error {
 		return echo.ErrUnauthorized
 	}
 
-	sessionID := uuid.New().String()
+	sessionId := uuid.New().String()
 
-	// Set custom accessTokenClaims
-	accessTokenClaims := &model.JwtCustomClaims{
-		SessionId: sessionID,
-		Email:     user.Email,
-		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(time.Hour * 1).Unix(),
-		},
-	}
-
-	// Create token with accessTokenClaims
-	accessTokenJWT := jwt.NewWithClaims(jwt.SigningMethodHS256, accessTokenClaims)
-
-	// Generate encoded token and send it as response.
-	accessToken, err := accessTokenJWT.SignedString(JwtKey)
+	accessToken, refreshToken, err := util.GetAccessRefreshToken(&user.Email, &sessionId)
 	if err != nil {
 		return err
 	}
 
-	// Set custom refreshTokenClaims
-	refreshTokenClaims := &model.JwtCustomClaims{
-		SessionId: sessionID,
-		Email:     user.Email,
-		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(24 * time.Hour).Unix(),
-		},
-	}
-
-	// Create token with refreshTokenClaims
-	refreshTokenJWT := jwt.NewWithClaims(jwt.SigningMethodHS256, refreshTokenClaims)
-
-	// Generate encoded token and send it as response.
-	refreshToken, err := refreshTokenJWT.SignedString(JwtKey)
+	err = database.SetRedisSession(sessionId, refreshToken, accessToken)
 	if err != nil {
 		return err
-	}
-
-	ctx := context.Background()
-	if _, err := redisClient.Pipelined(ctx, func(redis redis.Pipeliner) error {
-		redis.HSet(*redisContext, sessionID, "refreshToken", refreshToken)
-		redis.HSet(*redisContext, sessionID, "accessToken", accessToken)
-		redis.Expire(*redisContext, sessionID, time.Hour)
-		return nil
-	}); err != nil {
-		panic(err)
 	}
 
 	return util.Response(c, http.StatusOK, "", map[string]interface{}{

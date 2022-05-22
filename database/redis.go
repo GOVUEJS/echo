@@ -3,7 +3,8 @@ package database
 import (
 	"context"
 	"github.com/go-redis/redis/v8"
-	"myapp/util"
+	"myapp/config"
+	"time"
 )
 
 var (
@@ -22,9 +23,9 @@ func InitRedis() {
 
 func initRedisClient() {
 	redisClient = redis.NewClient(&redis.Options{
-		Addr:     *util.Host + ":6379",
-		Password: *util.Password, // no password set
-		DB:       0,              // use default DB
+		Addr:     *config.Host + ":6379",
+		Password: *config.Password, // no password set
+		DB:       0,                // use default DB
 	})
 }
 
@@ -44,4 +45,17 @@ func GetRedisContext() *context.Context {
 		initRedisContext()
 	}
 	return &redisContext
+}
+
+func SetRedisSession(sessionId string, refreshToken *string, accessToken *string) error {
+	ctx := *GetRedisContext()
+	if _, err := redisClient.Pipelined(ctx, func(redis redis.Pipeliner) error {
+		redis.HSet(ctx, sessionId, "refreshToken", refreshToken)
+		redis.HSet(ctx, sessionId, "accessToken", accessToken)
+		redis.Expire(ctx, sessionId, time.Hour)
+		return nil
+	}); err != nil {
+		return err
+	}
+	return nil
 }

@@ -6,8 +6,8 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
+	"myapp/config"
 	"myapp/model"
-	"myapp/util"
 )
 
 var (
@@ -15,7 +15,7 @@ var (
 )
 
 func InitRDB() {
-	dsn := fmt.Sprintf(`host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=Asia/Seoul`, *util.Host, *util.User, *util.Password, *util.RdbName, *util.RdbPort)
+	dsn := fmt.Sprintf(`host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=Asia/Seoul`, *config.Host, *config.User, *config.Password, *config.RdbName, *config.RdbPort)
 
 	var err error
 	rdb, err = gorm.Open(postgres.Open(dsn), &gorm.Config{

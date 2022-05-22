@@ -7,6 +7,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"myapp/service"
+	"myapp/util"
 )
 
 func InitRouter(e *echo.Echo) {
@@ -34,7 +35,7 @@ func jwtAuth() echo.MiddlewareFunc {
 				if t.Method.Alg() != "HS256" {
 					return nil, fmt.Errorf("unexpected jwt signing method=%v", t.Header["alg"])
 				}
-				return service.JwtKey, nil
+				return util.JwtKey, nil
 			}
 
 			// claims are of type `jwt.MapClaims` when token is created with `jwt.Parse`
