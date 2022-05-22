@@ -61,7 +61,13 @@ func PostLogin(c echo.Context) error {
 		return err
 	}
 
-	err = database.SetRedisSession(sessionId, refreshToken, accessToken)
+	redisSession := model.RedisSession{
+		Email:        &user.Email,
+		Ip:           &c.Request().Host,
+		AccessToken:  accessToken,
+		RefreshToken: refreshToken,
+	}
+	err = database.SetRedisSession(sessionId, &redisSession)
 	if err != nil {
 		return err
 	}

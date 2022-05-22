@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/go-redis/redis/v8"
 	"myapp/config"
+	"myapp/model"
 	"time"
 )
 
@@ -47,11 +48,13 @@ func GetRedisContext() *context.Context {
 	return &redisContext
 }
 
-func SetRedisSession(sessionId string, refreshToken *string, accessToken *string) error {
+func SetRedisSession(sessionId string, redisSession *model.RedisSession) error {
 	ctx := *GetRedisContext()
 	if _, err := redisClient.Pipelined(ctx, func(redis redis.Pipeliner) error {
-		redis.HSet(ctx, sessionId, "refreshToken", refreshToken)
-		redis.HSet(ctx, sessionId, "accessToken", accessToken)
+		redis.HSet(ctx, sessionId, "email", *redisSession.Email)
+		redis.HSet(ctx, sessionId, "ip", *redisSession.Ip)
+		redis.HSet(ctx, sessionId, "accessToken", *redisSession.AccessToken)
+		redis.HSet(ctx, sessionId, "refreshToken", *redisSession.RefreshToken)
 		redis.Expire(ctx, sessionId, time.Hour)
 		return nil
 	}); err != nil {
