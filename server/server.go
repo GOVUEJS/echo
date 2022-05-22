@@ -19,7 +19,7 @@ var (
 func init() {
 	e = echo.New()
 
-	e.IPExtractor = echo.ExtractIPFromXFFHeader()
+	e.IPExtractor = echo.ExtractIPFromRealIPHeader()
 
 	e.Use(middleware.RequestIDWithConfig(middleware.RequestIDConfig{
 		Generator: func() string {
