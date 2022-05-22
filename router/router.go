@@ -17,7 +17,7 @@ func InitRouter(e *echo.Echo) {
 	apiV1Group.GET("/logout", service.GetLogout)
 
 	authGroup := apiV1Group.Group("")
-	authGroup.Use(getAuthWithJWT())
+	//authGroup.Use(getAuthWithJWT())
 
 	articleGroup := authGroup.Group("/articles")
 	articleGroup.GET("", service.GetArticleList)

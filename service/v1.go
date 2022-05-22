@@ -93,7 +93,10 @@ func PostLogin(c echo.Context) error {
 		MaxAge: int(24 * time.Hour / time.Second),
 	})
 
-	return util.Response(c, http.StatusOK, "", nil)
+	return util.Response(c, http.StatusOK, "", map[string]interface{}{
+		"accessToken":  accessToken,
+		"refreshToken": refreshToken,
+	})
 }
 
 func GetLogout(c echo.Context) error {
