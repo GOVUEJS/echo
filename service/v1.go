@@ -1,7 +1,10 @@
 package service
 
 import (
+	"context"
+	"github.com/go-redis/redis/v8"
 	"github.com/golang-jwt/jwt"
+	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/gommon/random"
 	"gorm.io/gorm"
@@ -14,25 +17,24 @@ import (
 )
 
 var (
-	rdb    *gorm.DB
-	redis  *database.Redis
-	JwtKey []byte
+	rdb          *gorm.DB
+	redisClient  *redis.Client
+	redisContext *context.Context
+	JwtKey       []byte
 )
 
 func init() {
 	rdb = database.GetRDB()
-	redis = database.GetRedis()
+	redisClient = database.GetRedis()
+	redisContext = database.GetRedisContext()
 	JwtKey = []byte(random.String(32))
 }
 
 func GetMain(c echo.Context) error {
-	redis.Set("test", "test", 0)
-	value, err := redis.Get("test")
-	if err != nil {
-		return util.Response(c, http.StatusInternalServerError, "Redis Error", nil)
-	}
-
-	return util.Response(c, http.StatusOK, value, nil)
+	redisClient.Set(*redisContext, "test", random.String(10), 0)
+	value := redisClient.Get(*redisContext, "test")
+	str := value.String()
+	return util.Response(c, http.StatusOK, str, nil)
 }
 
 func PostSignUp(c echo.Context) error {
@@ -56,9 +58,12 @@ func PostLogin(c echo.Context) error {
 		return echo.ErrUnauthorized
 	}
 
+	sessionID := uuid.New().String()
+
 	// Set custom accessTokenClaims
 	accessTokenClaims := &model.JwtCustomClaims{
-		Email: user.Email,
+		SessionId: sessionID,
+		Email:     user.Email,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(time.Hour * 1).Unix(),
 		},
@@ -73,16 +78,10 @@ func PostLogin(c echo.Context) error {
 		return err
 	}
 
-	c.SetCookie(&http.Cookie{
-		Name:    "accessToken",
-		Value:   accessToken,
-		Path:    "/",
-		Expires: time.Now().Add(1 * time.Hour),
-	})
-
 	// Set custom refreshTokenClaims
 	refreshTokenClaims := &model.JwtCustomClaims{
-		Email: user.Email,
+		SessionId: sessionID,
+		Email:     user.Email,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(24 * time.Hour).Unix(),
 		},
@@ -97,12 +96,15 @@ func PostLogin(c echo.Context) error {
 		return err
 	}
 
-	c.SetCookie(&http.Cookie{
-		Name:   "refreshToken",
-		Value:  refreshToken,
-		Path:   "/",
-		MaxAge: int(24 * time.Hour / time.Second),
-	})
+	ctx := context.Background()
+	if _, err := redisClient.Pipelined(ctx, func(redis redis.Pipeliner) error {
+		redis.HSet(*redisContext, sessionID, "refreshToken", refreshToken)
+		redis.HSet(*redisContext, sessionID, "accessToken", accessToken)
+		redis.Expire(*redisContext, sessionID, time.Hour)
+		return nil
+	}); err != nil {
+		panic(err)
+	}
 
 	return util.Response(c, http.StatusOK, "", map[string]interface{}{
 		"accessToken":  accessToken,
@@ -111,16 +113,6 @@ func PostLogin(c echo.Context) error {
 }
 
 func GetLogout(c echo.Context) error {
-	c.SetCookie(&http.Cookie{
-		Name:   "accessToken",
-		Path:   "/",
-		MaxAge: -1,
-	})
-	c.SetCookie(&http.Cookie{
-		Name:   "refreshToken",
-		Path:   "/",
-		MaxAge: -1,
-	})
 	return util.Response(c, http.StatusOK, "", nil)
 }
 
