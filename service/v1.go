@@ -113,6 +113,11 @@ func GetLogout(c echo.Context) error {
 	return util.Response(c, http.StatusOK, "", nil)
 }
 
+func RefreshToken(c echo.Context) error {
+	// TODO
+	return util.Response(c, http.StatusOK, "", map[string]interface{}{})
+}
+
 func GetArticleList(c echo.Context) error {
 	pageParam := c.QueryParam("page")
 	page, err := strconv.Atoi(pageParam)

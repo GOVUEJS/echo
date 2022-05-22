@@ -15,11 +15,9 @@ func InitRouter(e *echo.Echo) {
 	apiV1Group := e.Group("/api/v1")
 	apiV1Group.POST("/login", service.PostLogin)
 	apiV1Group.GET("/logout", service.GetLogout)
+	apiV1Group.POST("/token/refresh", service.RefreshToken)
 
-	authGroup := apiV1Group.Group("")
-	//authGroup.Use(getAuthWithJWT())
-
-	articleGroup := authGroup.Group("/articles")
+	articleGroup := apiV1Group.Group("/articles")
 	articleGroup.GET("", service.GetArticleList)
 	articleGroup.GET("/:id", service.GetArticle)
 	articleGroup.POST("", service.PostArticle, jwtAuth())
