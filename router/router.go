@@ -13,6 +13,7 @@ func InitRouter(e *echo.Echo) {
 	e.GET("/", service.GetMain)
 
 	apiV1Group := e.Group("/api/v1")
+	apiV1Group.POST("/signup", service.PostSignUp)
 	apiV1Group.POST("/login", service.PostLogin)
 	apiV1Group.GET("/logout", service.GetLogout)
 	apiV1Group.POST("/token/refresh", service.RefreshToken)

@@ -35,6 +35,17 @@ func GetMain(c echo.Context) error {
 	return util.Response(c, http.StatusOK, value, nil)
 }
 
+func PostSignUp(c echo.Context) error {
+	user := new(model.User)
+	if err := c.Bind(user); err != nil {
+		return err
+	}
+
+	rdb.Create(&user)
+
+	return util.Response(c, http.StatusCreated, "", nil)
+}
+
 func PostLogin(c echo.Context) error {
 	user := new(model.User)
 	if err := c.Bind(user); err != nil {
