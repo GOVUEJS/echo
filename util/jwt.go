@@ -22,7 +22,7 @@ func GetAccessRefreshToken(email, sessionId *string) (accessToken, refreshToken 
 		SessionId: *sessionId,
 		Email:     *email,
 		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(time.Hour * 1).Unix(),
+			ExpiresAt: time.Now().Add(consts.SessionDuration / 10).Unix(),
 		},
 	}
 
@@ -40,7 +40,7 @@ func GetAccessRefreshToken(email, sessionId *string) (accessToken, refreshToken 
 		SessionId: *sessionId,
 		Email:     *email,
 		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(24 * time.Hour).Unix(),
+			ExpiresAt: time.Now().Add(consts.SessionDuration).Unix(),
 		},
 	}
 
