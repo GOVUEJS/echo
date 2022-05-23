@@ -19,8 +19,6 @@ var (
 func init() {
 	e = echo.New()
 
-	e.IPExtractor = echo.ExtractIPFromRealIPHeader()
-
 	e.Use(middleware.RequestIDWithConfig(middleware.RequestIDConfig{
 		Generator: func() string {
 			return random.String(32)
@@ -63,11 +61,13 @@ func init() {
 		Output:           multiWriter,
 	}))
 
+	e.IPExtractor = echo.ExtractIPFromXFFHeader()
+
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins:     []string{"*"},
 		AllowMethods:     []string{http.MethodGet, http.MethodPost, http.MethodPut, http.MethodDelete},
-		ExposeHeaders:    []string{"Set-Cookie"},
 		AllowCredentials: true,
+		ExposeHeaders:    []string{"Set-Cookie"},
 	}))
 
 	router.InitRouter(e)
