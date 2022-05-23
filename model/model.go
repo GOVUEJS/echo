@@ -6,9 +6,10 @@ type ApiResponse struct {
 }
 
 type GetArticleList struct {
-	Id    int    `json:"id"`
-	Title string `json:"title"`
-	Date  string `json:"date"`
+	Id     int    `json:"id"`
+	Title  string `json:"title"`
+	Date   string `json:"date"`
+	Writer string `json:"writer"`
 }
 
 type GetArticleListResponse struct {

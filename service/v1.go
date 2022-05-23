@@ -142,6 +142,12 @@ func PostArticle(c echo.Context) error {
 		return util.Response(c, http.StatusBadRequest, "Wrong Parameters", nil)
 	}
 
+	userEmail, ok := c.Get("email").(string)
+	if !ok {
+		return util.Response(c, http.StatusInternalServerError, "user", nil)
+	}
+	article.Writer = userEmail
+
 	// 생성
 	rdb.Create(&article)
 

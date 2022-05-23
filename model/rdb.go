@@ -8,6 +8,7 @@ import (
 type Article struct {
 	Id        uint           `gorm:"primaryKey;comment:글번호" json:"id"`
 	Title     string         `gorm:"type:varchar(100);not null;comment:제목" json:"title"`
+	Writer    string         `gorm:"type:varchar(50);not null;comment:글쓴이" json:"writer"`
 	Content   string         `gorm:"not null;comment:내용" json:"content"`
 	CreatedAt time.Time      `gorm:"not null;comment:생성시간" json:"-"`
 	UpdatedAt time.Time      `gorm:"not null;comment:수정시간" json:"-"`
