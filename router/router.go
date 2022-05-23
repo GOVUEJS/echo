@@ -29,7 +29,6 @@ func InitRouter(e *echo.Echo) {
 
 func jwtAuth() echo.MiddlewareFunc {
 	return middleware.JWTWithConfig(middleware.JWTConfig{
-		TokenLookup: "query:token",
 		ParseTokenFunc: func(auth string, c echo.Context) (interface{}, error) {
 			keyFunc := func(t *jwt.Token) (interface{}, error) {
 				if t.Method.Alg() != "HS256" {
@@ -45,6 +44,11 @@ func jwtAuth() echo.MiddlewareFunc {
 			}
 			if !token.Valid {
 				return nil, errors.New("invalid token")
+			}
+
+			if claims, ok := token.Claims.(jwt.MapClaims); ok {
+				c.Set("sessionId", claims["sessionId"])
+				c.Set("email", claims["email"])
 			}
 			return token, nil
 		},
