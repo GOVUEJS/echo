@@ -2,6 +2,7 @@ package database
 
 import (
 	"context"
+	"fmt"
 	"github.com/go-redis/redis/v8"
 	"myapp/config"
 	"myapp/model"
@@ -13,21 +14,23 @@ var (
 	redisClient  *redis.Client
 )
 
-func init() {
-	InitRedis()
-}
-
-func InitRedis() {
-	initRedisClient()
+func InitRedis() error {
+	err := initRedisClient()
+	if err != nil {
+		panic(err)
+	}
 	initRedisContext()
+	return nil
 }
 
-func initRedisClient() {
+func initRedisClient() error {
 	redisClient = redis.NewClient(&redis.Options{
-		Addr:     *config.Host + ":6379",
-		Password: *config.Password, // no password set
-		DB:       0,                // use default DB
+		Addr:     fmt.Sprintf("%v:%v", config.Config.Redis.Ip, config.Config.Redis.Port),
+		Password: config.Config.Redis.Password, // no password set
+		DB:       0,                            // use default DB
 	})
+
+	return redisClient.Ping(redisContext).Err()
 }
 
 func initRedisContext() {

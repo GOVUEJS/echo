@@ -1,7 +1,6 @@
 package service
 
 import (
-	"context"
 	"github.com/go-redis/redis/v8"
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
@@ -15,20 +14,18 @@ import (
 )
 
 var (
-	rdb          *gorm.DB
-	redisClient  *redis.Client
-	redisContext *context.Context
+	rdb         *gorm.DB
+	redisClient *redis.Client
 )
 
-func init() {
+func InitService() {
 	rdb = database.GetRDB()
 	redisClient = database.GetRedis()
-	redisContext = database.GetRedisContext()
 }
 
 func GetMain(c echo.Context) error {
-	redisClient.Set(*redisContext, "test", random.String(10), 0)
-	value := redisClient.Get(*redisContext, "test")
+	redisClient.Set(*database.GetRedisContext(), "test", random.String(10), 0)
+	value := redisClient.Get(*database.GetRedisContext(), "test")
 	str := value.String()
 	return util.Response(c, http.StatusOK, str, nil)
 }

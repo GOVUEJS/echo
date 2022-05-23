@@ -1,14 +1,29 @@
 package main
 
 import (
+	"myapp/config"
 	"myapp/database"
 	"myapp/server"
+	"myapp/service"
 )
 
 func main() {
-	database.InitRedis()
+	err := config.InitConfig()
+	if err != nil {
+		panic(err)
+	}
 
-	database.InitRDB()
+	err = database.InitRedis()
+	if err != nil {
+		panic(err)
+	}
+
+	err = database.InitRDB()
+	if err != nil {
+		panic(err)
+	}
+
+	service.InitService()
 
 	server.InitEcho()
 }

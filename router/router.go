@@ -6,8 +6,8 @@ import (
 	"github.com/golang-jwt/jwt"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"myapp/config"
 	"myapp/service"
-	"myapp/util"
 )
 
 func InitRouter(e *echo.Echo) {
@@ -34,7 +34,7 @@ func jwtAuth() echo.MiddlewareFunc {
 				if t.Method.Alg() != "HS256" {
 					return nil, fmt.Errorf("unexpected jwt signing method=%v", t.Header["alg"])
 				}
-				return util.JwtKey, nil
+				return config.Config.Jwt.Key, nil
 			}
 
 			// claims are of type `jwt.MapClaims` when token is created with `jwt.Parse`

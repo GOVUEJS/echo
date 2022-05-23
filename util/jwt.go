@@ -2,19 +2,12 @@ package util
 
 import (
 	"github.com/golang-jwt/jwt"
-	"github.com/labstack/gommon/random"
+	"myapp/config"
+	"myapp/consts"
 	"myapp/model"
 	"time"
 )
 
-var (
-	JwtKey []byte
-)
-
-func init() {
-
-	JwtKey = []byte(random.String(32))
-}
 func GetAccessRefreshToken(email, sessionId *string) (accessToken, refreshToken *string, err error) {
 
 	// Set custom accessTokenClaims
@@ -30,7 +23,7 @@ func GetAccessRefreshToken(email, sessionId *string) (accessToken, refreshToken 
 	accessTokenJWT := jwt.NewWithClaims(jwt.SigningMethodHS256, accessTokenClaims)
 
 	// Generate encoded token and send it as response.
-	accessTokenString, err := accessTokenJWT.SignedString(JwtKey)
+	accessTokenString, err := accessTokenJWT.SignedString(config.Config.Jwt.Key)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -48,7 +41,7 @@ func GetAccessRefreshToken(email, sessionId *string) (accessToken, refreshToken 
 	refreshTokenJWT := jwt.NewWithClaims(jwt.SigningMethodHS256, refreshTokenClaims)
 
 	// Generate encoded token and send it as response.
-	refreshTokenString, err := refreshTokenJWT.SignedString(JwtKey)
+	refreshTokenString, err := refreshTokenJWT.SignedString(config.Config.Jwt.Key)
 	if err != nil {
 		return nil, nil, err
 	}

@@ -14,21 +14,26 @@ var (
 	rdb *gorm.DB
 )
 
-func InitRDB() {
-	dsn := fmt.Sprintf(`host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=Asia/Seoul`, *config.Host, *config.User, *config.Password, *config.RdbName, *config.RdbPort)
+func InitRDB() error {
+	rdbConfig := config.Config.Rdb
+	dsn := fmt.Sprintf(`host=%v user=%v password=%v dbname=%v port=%v sslmode=disable TimeZone=Asia/Seoul`, rdbConfig.Ip, rdbConfig.User, rdbConfig.Password, rdbConfig.DbName, rdbConfig.Port)
 
 	var err error
 	rdb, err = gorm.Open(postgres.Open(dsn), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Info),
 	})
 	if err != nil {
-		panic(errors.New("db 연결에 실패하였습니다"))
+		return errors.New("db 연결에 실패하였습니다")
 	}
 
-	err = autoMigrate()
-	if err != nil {
-		panic(err)
+	if rdbConfig.AutoMigration {
+		err = autoMigrate()
+		if err != nil {
+			return err
+		}
 	}
+
+	return nil
 }
 
 func autoMigrate() error {

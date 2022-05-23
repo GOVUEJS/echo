@@ -17,7 +17,7 @@ var (
 	e *echo.Echo
 )
 
-func init() {
+func InitEcho() {
 	e = echo.New()
 
 	e.Use(middleware.RequestIDWithConfig(middleware.RequestIDConfig{
@@ -73,8 +73,6 @@ func init() {
 	}))
 
 	router.InitRouter(e)
-}
 
-func InitEcho() {
 	e.Logger.Fatal(e.Start(":1323"))
 }
