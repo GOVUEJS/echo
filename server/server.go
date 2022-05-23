@@ -1,6 +1,7 @@
 package server
 
 import (
+	"fmt"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/labstack/gommon/random"
@@ -26,7 +27,7 @@ func init() {
 	}))
 
 	writer := &lumberjack.Logger{
-		Filename:   "/var/log/HWISECHO/echo.log",
+		Filename:   fmt.Sprintf("/var/log/HWISECHO/echo.%s.log", time.Now().Format("2006-01-02")),
 		MaxSize:    500, // megabytes
 		MaxBackups: 28,
 		MaxAge:     28,    //days
@@ -36,7 +37,8 @@ func init() {
 
 	go func() {
 		for {
-			time.Sleep(time.Hour * 24)
+			time.Sleep(time.Second)
+			writer.Filename = fmt.Sprintf("/var/log/HWISECHO/echo.%s.log", time.Now().Format("2006-01-02"))
 			err := writer.Rotate()
 			if err != nil {
 				panic(err)
