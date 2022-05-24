@@ -151,4 +151,4 @@ $RECYCLE.BIN/
 
 # End of https://www.toptal.com/developers/gitignore/api/go,goland,git,windows
 
-config/*.toml
+config/echo-dev.toml
