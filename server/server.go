@@ -4,11 +4,9 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/labstack/gommon/random"
-	"gopkg.in/natefinch/lumberjack.v2"
-	"io"
+	"myapp/logger"
 	"myapp/router"
 	"net/http"
-	"os"
 )
 
 var (
@@ -24,16 +22,6 @@ func InitEcho() {
 		},
 	}))
 
-	writer := &lumberjack.Logger{
-		Filename:   "/var/log/HWISECHO/echo.log",
-		MaxSize:    500, // megabytes
-		MaxBackups: 28,
-		MaxAge:     28,    //days
-		Compress:   false, // disabled by default
-		LocalTime:  true,
-	}
-
-	multiWriter := io.MultiWriter(os.Stdout, writer)
 	e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
 		Format: `{` +
 			`"time":"${time_rfc3339_nano}", ` +
@@ -47,7 +35,7 @@ func InitEcho() {
 			`"error":"${error}"` +
 			"}\n",
 		CustomTimeFormat: "2006-01-02 15:04:05.00000",
-		Output:           multiWriter,
+		Output:           *logger.GetLogger(),
 	}))
 
 	e.IPExtractor = echo.ExtractIPFromXFFHeader()
