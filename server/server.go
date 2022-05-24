@@ -1,7 +1,6 @@
 package server
 
 import (
-	"fmt"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/labstack/gommon/random"
@@ -10,7 +9,6 @@ import (
 	"myapp/router"
 	"net/http"
 	"os"
-	"time"
 )
 
 var (
@@ -27,24 +25,13 @@ func InitEcho() {
 	}))
 
 	writer := &lumberjack.Logger{
-		Filename:   fmt.Sprintf("/var/log/HWISECHO/echo.%s.log", time.Now().Format("2006-01-02")),
+		Filename:   "/var/log/HWISECHO/echo.log",
 		MaxSize:    500, // megabytes
 		MaxBackups: 28,
 		MaxAge:     28,    //days
 		Compress:   false, // disabled by default
 		LocalTime:  true,
 	}
-
-	go func() {
-		for {
-			time.Sleep(time.Second)
-			writer.Filename = fmt.Sprintf("/var/log/HWISECHO/echo.%s.log", time.Now().Format("2006-01-02"))
-			err := writer.Rotate()
-			if err != nil {
-				panic(err)
-			}
-		}
-	}()
 
 	multiWriter := io.MultiWriter(os.Stdout, writer)
 	e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
