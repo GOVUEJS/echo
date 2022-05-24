@@ -59,4 +59,4 @@ jobs:
         port: ${{ secrets.PORT }}
         script_stop: true
         script: |
-          sudo ~/echo-dev.sh
+          sudo nohup ~/echo-dev.sh
