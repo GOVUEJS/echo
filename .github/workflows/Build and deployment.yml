@@ -59,4 +59,5 @@ jobs:
         port: ${{ secrets.PORT }}
         script_stop: true
         script: |
-          sudo nohup ~/echo-dev.sh > /dev/null &
+          cd ~/echo
+          sudo nohup ./myapp -configFilePath="./config/echo-dev.toml" > /dev/null &
