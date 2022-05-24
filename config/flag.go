@@ -7,22 +7,10 @@ import (
 )
 
 var (
-	Host      *string
-	User      *string
-	Password  *string
-	RdbName   *string
-	RdbPort   *string
-	RedisPort *string
-	FilePath  *string
+	FilePath *string
 )
 
 func init() {
-	Host = flag.String("host", "", "host")
-	User = flag.String("user", "", "user")
-	Password = flag.String("password", "", "password")
-	RdbName = flag.String("dbname", "", "dbname")
-	RdbPort = flag.String("port", "", "port")
-	RedisPort = flag.String("redisPort", "", "redisPort")
 	FilePath = flag.String("configFilePath", "", "configFilePath")
 	flag.Parse()
 
