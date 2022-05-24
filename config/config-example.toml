@@ -1,0 +1,20 @@
+phase = "example"
+
+[jwt]
+key = "example"
+
+[echo]
+port = 0
+
+[rdb]
+ip = "example"
+port = 0
+user = "example"
+password = "example"
+dbName = "example"
+auto_migration = false
+
+[redis]
+ip = "example"
+port = 0
+password = "example*"
