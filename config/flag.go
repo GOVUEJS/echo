@@ -16,6 +16,6 @@ func init() {
 
 	if "" == *FilePath {
 		fmt.Println("Please enter the configFilePath flag")
-		os.Exit(5)
+		os.Exit(1)
 	}
 }
