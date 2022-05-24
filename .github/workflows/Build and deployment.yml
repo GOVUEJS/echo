@@ -34,7 +34,7 @@ jobs:
         script_stop: true
         script: |
           cd ~/echo
-          go build -o ${{ secrets.SERVICE_NAME }}
+          go build
     
     
     - name: kill with ssh
@@ -46,7 +46,7 @@ jobs:
         port: ${{ secrets.PORT }}
         script_stop: false
         script: |
-          sudo pkill myapp
+        #  sudo pkill myapp
           
     
     
