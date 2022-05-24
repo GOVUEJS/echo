@@ -59,4 +59,4 @@ jobs:
         port: ${{ secrets.PORT }}
         script_stop: true
         script: |
-          sudo nohup ~/echo/${{ secrets.SERVICE_NAME }} -configFilePath="./config/echo-dev.toml" > ~/log/${{ secrets.SERVICE_NAME }}.$(date --iso).log &
+          sudo ~/echo-dev.sh
