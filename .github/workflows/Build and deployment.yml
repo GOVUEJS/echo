@@ -46,7 +46,7 @@ jobs:
         port: ${{ secrets.PORT }}
         script_stop: false
         script: |
-          sudo pkill ${{ secrets.SERVICE_NAME }}
+          sudo pkill myapp
           
     
     
