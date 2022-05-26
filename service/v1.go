@@ -103,7 +103,7 @@ func GetArticleList(c echo.Context) error {
 
 	offset, limit := util.GetPageOffsetLimit(page)
 	sql.
-		Select([]string{"id", "title", "TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI') date"}).
+		Select([]string{"id", "title", "TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI') date", "writer"}).
 		Order("id desc").
 		Limit(limit).
 		Offset(offset).
@@ -127,7 +127,7 @@ func GetArticle(c echo.Context) error {
 	// 읽기
 	rdb.
 		Model(&model.Article{}).
-		Select([]string{"id", "title", "content", "TO_CHAR(updated_at, 'YYYY-MM-DD HH24:MI') date"}).
+		Select([]string{"id", "title", "content", "TO_CHAR(updated_at, 'YYYY-MM-DD HH24:MI') date", "writer"}).
 		First(&response.Article, id) // primary key 기준으로 Article 찾기
 
 	return util.Response(c, http.StatusOK, "", response)
