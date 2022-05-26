@@ -48,12 +48,10 @@ func GetAccessRefreshToken(email, sessionId *string) (accessToken, refreshToken 
 		return nil, nil, err
 	}
 
-	accessToken = &accessTokenString
-	refreshToken = &refreshTokenString
-	return
+	return &accessTokenString, &refreshTokenString, nil
 }
 
-func CheckToken(tokens *model.Tokens) (accessTokenClaims, refreshTokenClaims jwt.MapClaims, err error) {
+func CheckRefreshToken(tokens *model.Tokens) (accessTokenClaims, refreshTokenClaims jwt.MapClaims, err error) {
 	keyFunc := func(t *jwt.Token) (interface{}, error) {
 		if t.Method.Alg() != "HS256" {
 			return nil, fmt.Errorf("unexpected jwt signing method=%v", t.Header["alg"])
@@ -62,19 +60,13 @@ func CheckToken(tokens *model.Tokens) (accessTokenClaims, refreshTokenClaims jwt
 	}
 
 	accessToken, err := jwt.Parse(*tokens.AccessToken, keyFunc)
-	if err != nil {
-		return nil, nil, err
-	}
-	if !accessToken.Valid {
-		return nil, nil, errors.New("invalid tokens")
-	}
 	accessTokenClaims, _ = accessToken.Claims.(jwt.MapClaims)
 
 	refreshToken, err := jwt.Parse(*tokens.RefreshToken, keyFunc)
 	if err != nil {
 		return nil, nil, err
 	}
-	if !accessToken.Valid {
+	if !refreshToken.Valid {
 		return nil, nil, errors.New("invalid tokens")
 	}
 	refreshTokenClaims, _ = refreshToken.Claims.(jwt.MapClaims)

@@ -86,7 +86,7 @@ func RefreshToken(c echo.Context) error {
 		return err
 	}
 
-	requestAccessTokenClaims, _, err := util.CheckToken(tokens)
+	requestAccessTokenClaims, _, err := util.CheckRefreshToken(tokens)
 	if err != nil {
 		return err
 	}
