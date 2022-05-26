@@ -164,6 +164,15 @@ func PutArticle(c echo.Context) error {
 	}
 	articleData.Id = uint(idInt)
 
+	var writer string
+	rdb.
+		Model(&model.Article{}).
+		Select([]string{"writer"}).
+		First(&writer, id) // primary key 기준으로 Article 찾기
+	if email := c.Get("email"); email != writer {
+		return util.Response(c, http.StatusUnauthorized, "", nil)
+	}
+
 	rdb.Model(&model.Article{Id: articleData.Id}).Updates(articleData)
 
 	return util.Response(c, http.StatusOK, "PUT Success", nil)
@@ -174,6 +183,15 @@ func DeleteArticle(c echo.Context) error {
 	idInt, err := strconv.Atoi(id)
 	if err != nil {
 		return util.Response(c, http.StatusBadRequest, "Wrong Id", nil)
+	}
+
+	var writer string
+	rdb.
+		Model(&model.Article{}).
+		Select([]string{"writer"}).
+		First(&writer, id) // primary key 기준으로 Article 찾기
+	if email := c.Get("email"); email != writer {
+		return util.Response(c, http.StatusUnauthorized, "", nil)
 	}
 
 	// 삭제 - articleData 삭제하기

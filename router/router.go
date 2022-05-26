@@ -23,8 +23,8 @@ func InitRouter(e *echo.Echo) {
 	articleGroup.GET("", service.GetArticleList)
 	articleGroup.GET("/:id", service.GetArticle)
 	articleGroup.POST("", service.PostArticle, jwtAuth())
-	//articleGroup.PUT("/:id", service.PutArticle, jwtAuth())
-	//articleGroup.DELETE("/articles/:id", service.DeleteArticle, jwtAuth())
+	articleGroup.PUT("/:id", service.PutArticle, jwtAuth())
+	articleGroup.DELETE("/:id", service.DeleteArticle, jwtAuth())
 }
 
 func jwtAuth() echo.MiddlewareFunc {
