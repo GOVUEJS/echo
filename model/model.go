@@ -23,6 +23,7 @@ type GetArticle struct {
 	Title   string `json:"title"`
 	Content string `json:"content"`
 	Date    string `json:"date"`
+	Writer  string `json:"writer"`
 }
 
 type GetArticleResponse struct {
