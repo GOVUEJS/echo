@@ -81,8 +81,50 @@ func GetLogout(c echo.Context) error {
 }
 
 func RefreshToken(c echo.Context) error {
-	// TODO
-	return util.Response(c, http.StatusOK, "", map[string]interface{}{})
+	tokens := new(model.Tokens)
+	if err := c.Bind(tokens); err != nil {
+		return err
+	}
+
+	requestAccessTokenClaims, _, err := util.CheckToken(tokens)
+	if err != nil {
+		return err
+	}
+
+	email, ok := requestAccessTokenClaims["email"].(string)
+	if !ok {
+		return util.Response(c, http.StatusBadRequest, "jwt email error", nil)
+	}
+	sessionId, ok := requestAccessTokenClaims["sessionId"].(string)
+	if !ok {
+		return util.Response(c, http.StatusBadRequest, "jwt sessionId error", nil)
+	}
+
+	if tokens.AccessToken == nil || tokens.RefreshToken == nil {
+		return util.Response(c, http.StatusBadRequest, "wrong parameter", nil)
+	}
+
+	accessToken, refreshToken, err := util.GetAccessRefreshToken(&email, &sessionId)
+	if err != nil {
+		return err
+	}
+
+	ip := c.RealIP()
+	redisSession := model.RedisSession{
+		Email:        &email,
+		Ip:           &ip,
+		AccessToken:  accessToken,
+		RefreshToken: refreshToken,
+	}
+	err = database.SetRedisSession(sessionId, &redisSession)
+	if err != nil {
+		return err
+	}
+
+	return util.Response(c, http.StatusOK, "", map[string]interface{}{
+		"accessToken":  accessToken,
+		"refreshToken": refreshToken,
+	})
 }
 
 func GetArticleList(c echo.Context) error {

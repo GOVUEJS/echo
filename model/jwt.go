@@ -7,3 +7,8 @@ type JwtCustomClaims struct {
 	Email     string `json:"email"`
 	jwt.StandardClaims
 }
+
+type Tokens struct {
+	AccessToken  *string
+	RefreshToken *string
+}

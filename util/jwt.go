@@ -1,6 +1,8 @@
 package util
 
 import (
+	"errors"
+	"fmt"
 	"github.com/golang-jwt/jwt"
 	"myapp/config"
 	"myapp/consts"
@@ -49,4 +51,37 @@ func GetAccessRefreshToken(email, sessionId *string) (accessToken, refreshToken 
 	accessToken = &accessTokenString
 	refreshToken = &refreshTokenString
 	return
+}
+
+func CheckToken(tokens *model.Tokens) (accessTokenClaims, refreshTokenClaims jwt.MapClaims, err error) {
+	keyFunc := func(t *jwt.Token) (interface{}, error) {
+		if t.Method.Alg() != "HS256" {
+			return nil, fmt.Errorf("unexpected jwt signing method=%v", t.Header["alg"])
+		}
+		return config.Config.Jwt.Key, nil
+	}
+
+	accessToken, err := jwt.Parse(*tokens.AccessToken, keyFunc)
+	if err != nil {
+		return nil, nil, err
+	}
+	if !accessToken.Valid {
+		return nil, nil, errors.New("invalid tokens")
+	}
+	accessTokenClaims, _ = accessToken.Claims.(jwt.MapClaims)
+
+	refreshToken, err := jwt.Parse(*tokens.RefreshToken, keyFunc)
+	if err != nil {
+		return nil, nil, err
+	}
+	if !accessToken.Valid {
+		return nil, nil, errors.New("invalid tokens")
+	}
+	refreshTokenClaims, _ = refreshToken.Claims.(jwt.MapClaims)
+
+	if accessTokenClaims["email"] != refreshTokenClaims["email"] || accessTokenClaims["sessionId"] != refreshTokenClaims["sessionId"] {
+		return nil, nil, errors.New("invalid tokens")
+	}
+
+	return accessTokenClaims, refreshTokenClaims, nil
 }
