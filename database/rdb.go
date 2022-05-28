@@ -5,13 +5,10 @@ import (
 )
 
 func Login(email, pw string) (result bool) {
-	var count int64
+	tx := rdb.Where(&model.User{Email: email, Pw: pw}).
+		Find(&model.User{})
 
-	rdb.Model(&model.User{}).
-		Where(&model.User{Email: email, Pw: pw}).
-		Count(&count)
-
-	if count == 1 {
+	if tx.RowsAffected == 1 {
 		return true
 	}
 	return false
