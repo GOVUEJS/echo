@@ -36,7 +36,7 @@ jobs:
         script: |
           cd ~/echo
           go get
-          go test .\... -configFilePath="../config/echo-dev.toml"
+          go test ./... -configFilePath="../config/echo-dev.toml"
 
 
     - name: build with ssh
