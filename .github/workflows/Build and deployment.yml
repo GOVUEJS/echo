@@ -22,6 +22,7 @@ jobs:
         script_stop: true
         script: |
           cd ~/echo
+          git reset --hard
           git pull
           
     - name: build with ssh
