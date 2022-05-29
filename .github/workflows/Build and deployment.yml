@@ -35,6 +35,7 @@ jobs:
         script_stop: true
         script: |
           cd ~/echo
+          go get
           go test .\... -configFilePath="../config/echo-dev.toml"
 
 
@@ -48,6 +49,7 @@ jobs:
         script_stop: true
         script: |
           cd ~/echo
+          go get
           go build
     
     
