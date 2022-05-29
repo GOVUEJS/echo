@@ -1,55 +1,17 @@
-package test
+package v1
 
 import (
 	"encoding/json"
-	"flag"
+	"myapp/test"
 	"net/http"
 	"net/http/httptest"
-	"net/url"
-	"strconv"
 	"strings"
 	"testing"
 
 	"github.com/labstack/echo/v4"
-	"github.com/labstack/gommon/log"
 	"github.com/stretchr/testify/assert"
-	"myapp/config"
-	"myapp/database/rdb/postgres"
-	"myapp/database/session"
-	"myapp/logger"
-	"myapp/service"
-	v1 "myapp/service/v1"
+	"myapp/service/v1"
 )
-
-var (
-	filePath = flag.String("configFilePath", "", "configFilePath")
-)
-
-func newEcho() *echo.Echo {
-	logger.InitLogger()
-
-	err := config.InitConfig(*filePath)
-	if err != nil {
-		log.Fatalf("Decode toml error: %s", err)
-		panic(err)
-	}
-
-	err = session.InitRedis()
-	if err != nil {
-		log.Fatalf("InitRedis error: %s", err)
-		panic(err)
-	}
-
-	err = postgres.InitRDB()
-	if err != nil {
-		log.Fatalf("InitPostgres error: %s", err)
-		panic(err)
-	}
-
-	service.InitService()
-
-	return echo.New()
-}
 
 func TestPostSignUp(t *testing.T) {
 	type args struct {
@@ -71,7 +33,7 @@ func TestPostSignUp(t *testing.T) {
 		},
 	}
 
-	e := newEcho()
+	e := test.NewEchoForTest()
 	target := "/api/v1/signup"
 
 	for _, tt := range tests {
@@ -118,7 +80,7 @@ func TestPostLogin(t *testing.T) {
 		},
 	}
 
-	e := newEcho()
+	e := test.NewEchoForTest()
 	target := "/api/v1/login"
 
 	for _, tt := range tests {
@@ -132,61 +94,6 @@ func TestPostLogin(t *testing.T) {
 			// Assertions
 			if assert.NoError(t, v1.PostLogin(c)); rec.Code != tt.wantResult {
 				t.Errorf("PostLogin() gotResult = %v, want = %v, msg = %v", rec.Code, tt.wantResult, rec.Body.String())
-			}
-		})
-	}
-}
-
-func TestGetArticleList(t *testing.T) {
-	type args struct {
-		Page int
-	}
-	tests := []struct {
-		name       string
-		args       args
-		wantResult int
-	}{
-		{
-			name: "page=1 - 200",
-			args: args{
-				Page: 1,
-			},
-			wantResult: http.StatusOK,
-		},
-		{
-			name: "page=-1 - 400",
-			args: args{
-				Page: -1,
-			},
-			wantResult: http.StatusBadRequest,
-		},
-		{
-			name: "page=10 - 200",
-			args: args{
-				Page: 10,
-			},
-			wantResult: http.StatusOK,
-		},
-	}
-
-	e := newEcho()
-	target := "/api/v1/articles"
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			query := make(url.Values)
-			query.Set("page", strconv.Itoa(tt.args.Page))
-
-			marshal, _ := json.Marshal(&tt.args)
-
-			req := httptest.NewRequest(http.MethodGet, target+"/?"+query.Encode(), strings.NewReader(string(marshal)))
-			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
-			rec := httptest.NewRecorder()
-			c := e.NewContext(req, rec)
-
-			// Assertions
-			if assert.NoError(t, v1.GetArticleList(c)); rec.Code != tt.wantResult {
-				t.Errorf("GetArticleList() gotResult = %v, want = %v, msg = %v", rec.Code, tt.wantResult, rec.Body.String())
 			}
 		})
 	}
