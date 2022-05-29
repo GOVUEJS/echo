@@ -9,6 +9,46 @@ import (
 	"myapp/util"
 )
 
+// GetArticleList
+// @Summary Get article list
+// @Description 게시글 목록 조회
+// @Router /articles [GET]
+// @Param page query uint false "Page number"
+// @Accept json
+// @Produce json
+// @Success 200 {object} model.GetArticleListResponse
+// @Failure 400 {object} model.ApiResponse
+func GetArticleList(c echo.Context) error {
+	pageParam := c.QueryParam("page")
+	page, err := strconv.Atoi(pageParam)
+	if err != nil {
+		page = 1
+	}
+
+	if page < 1 {
+		return util.Response(c, http.StatusBadRequest, "request wrong page", nil)
+	}
+
+	response := &model.GetArticleListResponse{}
+
+	sql := rdb.
+		Model(&model.Article{})
+
+	current, total := util.GetPagination(sql, page)
+	response.Current = current
+	response.TotalPage = total
+
+	offset, limit := util.GetPageOffsetLimit(page)
+	sql.
+		Select([]string{"id", "title", "TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI') date", "writer"}).
+		Order("id desc").
+		Limit(limit).
+		Offset(offset).
+		Find(&response.ArticleList)
+
+	return util.Response(c, http.StatusOK, "", response)
+}
+
 // GetArticle
 // @Summary Get article
 // @Description 게시글 조회
@@ -35,41 +75,6 @@ func GetArticle(c echo.Context) error {
 		Model(&model.Article{}).
 		Select([]string{"id", "title", "content", "TO_CHAR(updated_at, 'YYYY-MM-DD HH24:MI') date", "writer"}).
 		First(&response.Article, id) // primary key 기준으로 Article 찾기
-
-	return util.Response(c, http.StatusOK, "", response)
-}
-
-// GetArticleList
-// @Summary Get article list
-// @Description 게시글 목록 조회
-// @Router /articles [GET]
-// @Param page query uint false "Page number"
-// @Accept json
-// @Produce json
-// @Success 200 {object} model.GetArticleListResponse
-func GetArticleList(c echo.Context) error {
-	pageParam := c.QueryParam("page")
-	page, err := strconv.Atoi(pageParam)
-	if err != nil {
-		page = 1
-	}
-
-	response := &model.GetArticleListResponse{}
-
-	sql := rdb.
-		Model(&model.Article{})
-
-	current, total := util.GetPagination(sql, page)
-	response.Current = current
-	response.TotalPage = total
-
-	offset, limit := util.GetPageOffsetLimit(page)
-	sql.
-		Select([]string{"id", "title", "TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI') date", "writer"}).
-		Order("id desc").
-		Limit(limit).
-		Offset(offset).
-		Find(&response.ArticleList)
 
 	return util.Response(c, http.StatusOK, "", response)
 }
