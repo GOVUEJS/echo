@@ -60,21 +60,27 @@ func GetArticleList(c echo.Context) error {
 // @Failure 404 {object} model.ApiResponse
 func GetArticle(c echo.Context) error {
 	id := c.Param("id")
-
-	response := &model.GetArticleResponse{}
-
 	idInt, err := strconv.Atoi(id)
 	if err != nil {
-		return echo.ErrNotFound
+		return util.Response(c, http.StatusBadRequest, "request wrong id", nil)
 	}
 
+	if idInt < 1 {
+		return util.Response(c, http.StatusBadRequest, "request wrong id", nil)
+	}
+
+	response := new(model.GetArticleResponse)
 	response.Article.Id = idInt
 
 	// 읽기
-	rdb.
+	tx := rdb.
 		Model(&model.Article{}).
 		Select([]string{"id", "title", "content", "TO_CHAR(updated_at, 'YYYY-MM-DD HH24:MI') date", "writer"}).
 		First(&response.Article, id) // primary key 기준으로 Article 찾기
+
+	if tx.RowsAffected == 0 {
+		return util.Response(c, http.StatusNotFound, "article not found", nil)
+	}
 
 	return util.Response(c, http.StatusOK, "", response)
 }

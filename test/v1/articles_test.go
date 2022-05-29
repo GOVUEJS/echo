@@ -69,3 +69,63 @@ func TestGetArticleList(t *testing.T) {
 		})
 	}
 }
+
+func TestGetArticle(t *testing.T) {
+	type args struct {
+		id string
+	}
+	tests := []struct {
+		name       string
+		args       args
+		wantResult int
+	}{
+		{
+			name: "id=1 - 404",
+			args: args{
+				id: "1",
+			},
+			wantResult: http.StatusNotFound,
+		},
+		{
+			name: "id=-1 - 400",
+			args: args{
+				id: "-1",
+			},
+			wantResult: http.StatusBadRequest,
+		},
+		{
+			name: "id=8 - 200",
+			args: args{
+				id: "8",
+			},
+			wantResult: http.StatusOK,
+		},
+		{
+			name: "id=q - 400",
+			args: args{
+				id: "q",
+			},
+			wantResult: http.StatusBadRequest,
+		},
+	}
+
+	e := test.NewEchoForTest()
+	target := "/api/v1/article/:id"
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			marshal, _ := json.Marshal(&tt.args)
+			req := httptest.NewRequest(http.MethodGet, target, strings.NewReader(string(marshal)))
+			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+			rec := httptest.NewRecorder()
+			c := e.NewContext(req, rec)
+			c.SetParamNames("id")
+			c.SetParamValues(tt.args.id)
+
+			// Assertions
+			if assert.NoError(t, v1.GetArticle(c)); rec.Code != tt.wantResult {
+				t.Errorf("GetArticle() gotResult = %v, want = %v, msg = %v", rec.Code, tt.wantResult, rec.Body.String())
+			}
+		})
+	}
+}
