@@ -50,18 +50,41 @@ func newEcho() *echo.Echo {
 }
 
 func TestPostSignUp(t *testing.T) {
-	// Setup
+	type args struct {
+		Email string
+		Pw    string
+	}
+	tests := []struct {
+		name       string
+		args       args
+		wantResult int
+	}{
+		{
+			name: "test@test.com - 400",
+			args: args{
+				Email: "test@test.com",
+				Pw:    "test",
+			},
+			wantResult: http.StatusBadRequest,
+		},
+	}
+
 	e := newEcho()
+	target := "/api/v1/signup"
 
-	bodyJSON := `{"email":"test@test.com","pw":"test"}`
-	req := httptest.NewRequest(http.MethodPost, "/api/v1/signup", strings.NewReader(bodyJSON))
-	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
-	rec := httptest.NewRecorder()
-	c := e.NewContext(req, rec)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			marshal, _ := json.Marshal(&tt.args)
+			req := httptest.NewRequest(http.MethodPost, target, strings.NewReader(string(marshal)))
+			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+			rec := httptest.NewRecorder()
+			c := e.NewContext(req, rec)
 
-	// Assertions
-	if assert.NoError(t, v1.PostSignUp(c)) {
-		assert.Equal(t, http.StatusBadRequest, rec.Code)
+			// Assertions
+			if assert.NoError(t, v1.PostSignUp(c)); rec.Code != tt.wantResult {
+				t.Errorf("PostSignUp() gotResult = %v, want = %v, msg = %v", rec.Code, tt.wantResult, rec.Body.String())
+			}
+		})
 	}
 }
 
@@ -106,7 +129,7 @@ func TestPostLogin(t *testing.T) {
 
 			// Assertions
 			if assert.NoError(t, v1.PostLogin(c)); rec.Code != tt.wantResult {
-				t.Errorf("PostSignUp() gotResult = %v, want = %v, msg = %v", rec.Code, tt.wantResult, rec.Body.String())
+				t.Errorf("PostLogin() gotResult = %v, want = %v, msg = %v", rec.Code, tt.wantResult, rec.Body.String())
 			}
 		})
 	}
