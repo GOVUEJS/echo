@@ -7,7 +7,6 @@ on:
     branches: [ develop ]
 
 jobs:
-
   build:
     name: Build and deployment
     runs-on: ubuntu-latest
@@ -24,7 +23,21 @@ jobs:
           cd ~/echo
           git reset --hard
           git pull
-          
+
+
+    - name: test with ssh
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.ROOT_USERNAME }}
+        password: ${{ secrets.ROOT_PASSWORD }}
+        port: ${{ secrets.PORT }}
+        script_stop: true
+        script: |
+          cd ~/echo
+          go test .\... -configFilePath="../config/echo-dev.toml"
+
+
     - name: build with ssh
       uses: appleboy/ssh-action@master
       with:
