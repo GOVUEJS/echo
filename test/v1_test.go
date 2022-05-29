@@ -5,6 +5,8 @@ import (
 	"flag"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
+	"strconv"
 	"strings"
 	"testing"
 
@@ -145,18 +147,25 @@ func TestGetArticleList(t *testing.T) {
 		wantResult int
 	}{
 		{
-			name: "test@test.com - 200",
+			name: "page=1 - 200",
 			args: args{
 				Page: 1,
 			},
 			wantResult: http.StatusOK,
 		},
 		{
-			name: "test@test.com - 400",
+			name: "page=-1 - 400",
 			args: args{
 				Page: -1,
 			},
 			wantResult: http.StatusBadRequest,
+		},
+		{
+			name: "page=10 - 200",
+			args: args{
+				Page: 10,
+			},
+			wantResult: http.StatusOK,
 		},
 	}
 
@@ -165,14 +174,18 @@ func TestGetArticleList(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			query := make(url.Values)
+			query.Set("page", strconv.Itoa(tt.args.Page))
+
 			marshal, _ := json.Marshal(&tt.args)
-			req := httptest.NewRequest(http.MethodGet, target, strings.NewReader(string(marshal)))
+
+			req := httptest.NewRequest(http.MethodGet, target+"/?"+query.Encode(), strings.NewReader(string(marshal)))
 			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 			rec := httptest.NewRecorder()
 			c := e.NewContext(req, rec)
 
 			// Assertions
-			if assert.NoError(t, v1.PostLogin(c)); rec.Code != tt.wantResult {
+			if assert.NoError(t, v1.GetArticleList(c)); rec.Code != tt.wantResult {
 				t.Errorf("GetArticleList() gotResult = %v, want = %v, msg = %v", rec.Code, tt.wantResult, rec.Body.String())
 			}
 		})
