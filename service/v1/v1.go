@@ -31,15 +31,20 @@ func InitService() {
 // @Accept json
 // @Produce json
 // @Success 200 {object} model.ApiResponse
+// @Failure 400 {object} model.ApiResponse
 func PostSignUp(c echo.Context) error {
 	user := new(model.User)
 	if err := c.Bind(user); err != nil {
 		return err
 	}
 
-	// TODO 해당 회원이 존재하는지 확인
+	if available := postgres.IsEmailAvailable(&user.Email); !available {
+		return util.Response(c, http.StatusBadRequest, "email is duplicated", nil)
+	}
 
-	rdb.Create(&user)
+	if err := postgres.SignUp(user); err != nil {
+		return echo.ErrBadRequest
+	}
 
 	return util.Response(c, http.StatusCreated, "", nil)
 }
@@ -53,7 +58,6 @@ func PostSignUp(c echo.Context) error {
 // @Produce json
 // @Success 200 {object} model.PostLoginResponse
 // @Failure 400 {object} model.ApiResponse
-// @Failure 401 {object} model.ApiResponse
 func PostLogin(c echo.Context) error {
 	user := new(model.User)
 	if err := c.Bind(user); err != nil {
@@ -68,7 +72,7 @@ func PostLogin(c echo.Context) error {
 	}
 
 	if !postgres.Login(user.Email, user.Pw) {
-		return echo.ErrUnauthorized
+		return util.Response(c, http.StatusBadRequest, "id/pw is not correct", nil)
 	}
 
 	sessionId := uuid.New().String()

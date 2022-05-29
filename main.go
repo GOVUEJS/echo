@@ -19,11 +19,14 @@ import (
 // @host 211.34.36.139:1323
 // @BasePath /api/v1
 func main() {
-	config.InitFlag()
+	err := config.InitFlag()
+	if err != nil {
+		panic(err)
+	}
 
 	logger.InitLogger()
 
-	err := config.InitConfig(*config.FilePath)
+	err = config.InitConfig(*config.FilePath)
 	if err != nil {
 		log.Fatalf("Decode toml error: %s", err)
 		panic(err)

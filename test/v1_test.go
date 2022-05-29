@@ -1,6 +1,8 @@
 package test
 
 import (
+	"encoding/json"
+	"flag"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -17,10 +19,14 @@ import (
 	v1 "myapp/service/v1"
 )
 
+var (
+	filePath = flag.String("configFilePath", "", "configFilePath")
+)
+
 func newEcho() *echo.Echo {
 	logger.InitLogger()
 
-	err := config.InitConfig("../config/echo-dev.toml")
+	err := config.InitConfig(*filePath)
 	if err != nil {
 		log.Fatalf("Decode toml error: %s", err)
 		panic(err)
@@ -43,18 +49,65 @@ func newEcho() *echo.Echo {
 	return echo.New()
 }
 
-func TestPostLogin(t *testing.T) {
+func TestPostSignUp(t *testing.T) {
 	// Setup
 	e := newEcho()
 
 	bodyJSON := `{"email":"test@test.com","pw":"test"}`
-	req := httptest.NewRequest(http.MethodPost, "/api/v1/login", strings.NewReader(bodyJSON))
+	req := httptest.NewRequest(http.MethodPost, "/api/v1/signup", strings.NewReader(bodyJSON))
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
 	// Assertions
-	if assert.NoError(t, v1.PostLogin(c)) {
-		assert.Equal(t, http.StatusOK, rec.Code)
+	if assert.NoError(t, v1.PostSignUp(c)) {
+		assert.Equal(t, http.StatusBadRequest, rec.Code)
+	}
+}
+
+func TestPostLogin(t *testing.T) {
+	type args struct {
+		Email string
+		Pw    string
+	}
+	tests := []struct {
+		name       string
+		args       args
+		wantResult int
+	}{
+		{
+			name: "test@test.com - 200",
+			args: args{
+				Email: "test@test.com",
+				Pw:    "test",
+			},
+			wantResult: http.StatusOK,
+		},
+		{
+			name: "test@test.com - 400",
+			args: args{
+				Email: "test@test.com",
+				Pw:    "test1",
+			},
+			wantResult: http.StatusBadRequest,
+		},
+	}
+
+	e := newEcho()
+	target := "/api/v1/login"
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			marshal, _ := json.Marshal(&tt.args)
+			req := httptest.NewRequest(http.MethodPost, target, strings.NewReader(string(marshal)))
+			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+			rec := httptest.NewRecorder()
+			c := e.NewContext(req, rec)
+
+			// Assertions
+			if assert.NoError(t, v1.PostLogin(c)); rec.Code != tt.wantResult {
+				t.Errorf("PostSignUp() gotResult = %v, want = %v, msg = %v", rec.Code, tt.wantResult, rec.Body.String())
+			}
+		})
 	}
 }

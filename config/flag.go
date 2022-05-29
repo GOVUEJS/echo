@@ -1,21 +1,20 @@
 package config
 
 import (
+	"errors"
 	"flag"
-	"fmt"
-	"os"
 )
 
 var (
 	FilePath *string
 )
 
-func InitFlag() {
+func InitFlag() (err error) {
 	FilePath = flag.String("configFilePath", "", "configFilePath")
 	flag.Parse()
 
 	if "" == *FilePath {
-		fmt.Println("Please enter the configFilePath flag")
-		os.Exit(1)
+		return errors.New("please enter the configFilePath flag")
 	}
+	return
 }

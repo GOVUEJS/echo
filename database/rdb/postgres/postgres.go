@@ -13,3 +13,22 @@ func Login(email, pw string) (result bool) {
 	}
 	return false
 }
+
+func SignUp(user *model.User) (err error) {
+	tx := rdb.Create(&user)
+	return tx.Error
+}
+
+func IsEmailAvailable(email *string) (result bool) {
+	user := &model.User{Email: *email}
+
+	tx := rdb.First(user)
+	if tx.Error != nil {
+		return false
+	}
+
+	if tx.RowsAffected == 1 {
+		return false
+	}
+	return true
+}
