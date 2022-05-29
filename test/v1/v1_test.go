@@ -98,3 +98,37 @@ func TestPostLogin(t *testing.T) {
 		})
 	}
 }
+
+func TestGetLogout(t *testing.T) {
+	type args struct {
+	}
+	tests := []struct {
+		name       string
+		args       args
+		wantResult int
+	}{
+		{
+			name:       testing.CoverMode(),
+			args:       args{},
+			wantResult: http.StatusOK,
+		},
+	}
+
+	e := test.NewEchoForTest()
+	target := "/api/v1/logout"
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			marshal, _ := json.Marshal(&tt.args)
+			req := httptest.NewRequest(http.MethodPost, target, strings.NewReader(string(marshal)))
+			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+			rec := httptest.NewRecorder()
+			c := e.NewContext(req, rec)
+
+			// Assertions
+			if assert.NoError(t, v1.GetLogout(c)); rec.Code != tt.wantResult {
+				t.Errorf("GetLogout() gotResult = %v, want = %v, msg = %v", rec.Code, tt.wantResult, rec.Body.String())
+			}
+		})
+	}
+}
