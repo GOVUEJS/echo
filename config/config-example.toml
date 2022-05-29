@@ -13,6 +13,7 @@ user = "example"
 password = "example"
 dbName = "example"
 auto_migration = false
+log_level = 0
 
 [redis]
 ip = "example"
