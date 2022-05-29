@@ -3,7 +3,6 @@ package postgres
 import (
 	"errors"
 	"fmt"
-
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -21,7 +20,7 @@ func InitRDB() error {
 
 	var err error
 	rdb, err = gorm.Open(postgres.Open(dsn), &gorm.Config{
-		Logger: logger.Default.LogMode(logger.Info),
+		Logger: logger.Default.LogMode(logger.LogLevel(rdbConfig.LogLevel)),
 	})
 	if err != nil {
 		return errors.New("db 연결에 실패하였습니다")

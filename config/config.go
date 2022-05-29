@@ -28,6 +28,7 @@ type rdbConfig struct {
 	Password      string `toml:"password"`
 	DbName        string `toml:"dbName"`
 	AutoMigration bool   `toml:"auto_migration"`
+	LogLevel      int    `toml:"log_level"`
 }
 
 type redisConfig struct {
