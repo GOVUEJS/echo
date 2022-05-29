@@ -121,11 +121,19 @@ func GetLogout(c echo.Context) error {
 // @Accept json
 // @Produce json
 // @Success 200 {object} model.PostLoginResponse
+// @Failure 400 {object} model.ApiResponse
 // @Failure 401 {object} model.ApiResponse
 func PostRefreshToken(c echo.Context) error {
 	tokens := new(model.Tokens)
 	if err := c.Bind(tokens); err != nil {
 		return err
+	}
+
+	if tokens.AccessToken == nil {
+		return util.Response(c, http.StatusBadRequest, "accessToken is empty", nil)
+	}
+	if tokens.RefreshToken == nil {
+		return util.Response(c, http.StatusBadRequest, "refreshToken is empty", nil)
 	}
 
 	requestAccessTokenClaims, _, err := util.CheckRefreshToken(tokens)

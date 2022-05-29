@@ -11,13 +11,17 @@ import (
 )
 
 func GetAccessRefreshToken(email, sessionId *string) (accessToken, refreshToken *string, err error) {
+	return GetAccessRefreshTokenWithDuration(email, sessionId, consts.SessionDuration)
+}
+
+func GetAccessRefreshTokenWithDuration(email, sessionId *string, duration time.Duration) (accessToken, refreshToken *string, err error) {
 
 	// Set custom accessTokenClaims
 	accessTokenClaims := &model.JwtCustomClaims{
 		SessionId: *sessionId,
 		Email:     *email,
 		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(consts.SessionDuration / 10).Unix(),
+			ExpiresAt: time.Now().Add(duration / 10).Unix(),
 		},
 	}
 
@@ -35,7 +39,7 @@ func GetAccessRefreshToken(email, sessionId *string) (accessToken, refreshToken 
 		SessionId: *sessionId,
 		Email:     *email,
 		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(consts.SessionDuration).Unix(),
+			ExpiresAt: time.Now().Add(duration).Unix(),
 		},
 	}
 

@@ -63,6 +63,12 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/model.GetArticleListResponse"
                         }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/model.ApiResponse"
+                        }
                     }
                 }
             },
@@ -253,12 +259,6 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/model.ApiResponse"
                         }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/model.ApiResponse"
-                        }
                     }
                 }
             }
@@ -310,6 +310,12 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/model.ApiResponse"
                         }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/model.ApiResponse"
+                        }
                     }
                 }
             }
@@ -349,6 +355,12 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/model.PostLoginResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/model.ApiResponse"
                         }
                     },
                     "401": {
