@@ -3,7 +3,8 @@ package main
 import (
 	"github.com/labstack/gommon/log"
 	"myapp/config"
-	"myapp/database"
+	"myapp/database/rdb/postgres"
+	"myapp/database/session"
 	_ "myapp/docs"
 	"myapp/logger"
 	"myapp/server"
@@ -18,21 +19,23 @@ import (
 // @host 211.34.36.139:1323
 // @BasePath /api/v1
 func main() {
+	config.InitFlag()
+
 	logger.InitLogger()
 
-	err := config.InitConfig()
+	err := config.InitConfig(*config.FilePath)
 	if err != nil {
 		log.Fatalf("Decode toml error: %s", err)
 		panic(err)
 	}
 
-	err = database.InitRedis()
+	err = session.InitRedis()
 	if err != nil {
 		log.Fatalf("InitRedis error: %s", err)
 		panic(err)
 	}
 
-	err = database.InitRDB()
+	err = postgres.InitRDB()
 	if err != nil {
 		log.Fatalf("InitRDB error: %s", err)
 		panic(err)

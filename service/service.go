@@ -7,7 +7,8 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/gommon/random"
 	"gorm.io/gorm"
-	"myapp/database"
+	"myapp/database/rdb/postgres"
+	"myapp/database/session"
 	v1 "myapp/service/v1"
 	"myapp/util"
 )
@@ -18,8 +19,8 @@ var (
 )
 
 func InitService() {
-	rdb = database.GetRDB()
-	redisClient = database.GetRedis()
+	rdb = postgres.GetRDB()
+	redisClient = session.GetRedis()
 
 	v1.InitService()
 }
@@ -32,8 +33,8 @@ func InitService() {
 // @Produce json
 // @Success 200 {object} model.ApiResponse
 func GetMain(c echo.Context) error {
-	redisClient.Set(*database.GetRedisContext(), "test", random.String(10), 0)
-	value := redisClient.Get(*database.GetRedisContext(), "test")
+	redisClient.Set(*session.GetRedisContext(), "test", random.String(10), 0)
+	value := redisClient.Get(*session.GetRedisContext(), "test")
 	str := value.String()
 	return util.Response(c, http.StatusOK, str, nil)
 }

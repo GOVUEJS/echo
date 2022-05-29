@@ -10,7 +10,7 @@ var (
 	FilePath *string
 )
 
-func init() {
+func InitFlag() {
 	FilePath = flag.String("configFilePath", "", "configFilePath")
 	flag.Parse()
 

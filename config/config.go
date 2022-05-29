@@ -40,8 +40,8 @@ var (
 	Config config
 )
 
-func InitConfig() error {
-	_, err := toml.DecodeFile(*FilePath, &Config)
+func InitConfig(filePath string) error {
+	_, err := toml.DecodeFile(filePath, &Config)
 	Config.Jwt.Key = []byte(Config.Jwt.keyString)
 	if err != nil {
 		return err

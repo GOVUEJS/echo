@@ -7,7 +7,8 @@ import (
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	"gorm.io/gorm"
-	"myapp/database"
+	"myapp/database/rdb/postgres"
+	"myapp/database/session"
 	"myapp/model"
 	"myapp/util"
 )
@@ -18,8 +19,8 @@ var (
 )
 
 func InitService() {
-	rdb = database.GetRDB()
-	redisClient = database.GetRedis()
+	rdb = postgres.GetRDB()
+	redisClient = session.GetRedis()
 }
 
 // PostSignUp
@@ -66,7 +67,7 @@ func PostLogin(c echo.Context) error {
 		return util.Response(c, http.StatusBadRequest, "pw is empty", nil)
 	}
 
-	if !database.Login(user.Email, user.Pw) {
+	if !postgres.Login(user.Email, user.Pw) {
 		return echo.ErrUnauthorized
 	}
 
@@ -84,7 +85,7 @@ func PostLogin(c echo.Context) error {
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
 	}
-	err = database.SetRedisSession(sessionId, &redisSession)
+	err = session.SetRedisSession(sessionId, &redisSession)
 	if err != nil {
 		return echo.ErrInternalServerError
 	}
@@ -153,7 +154,7 @@ func PostRefreshToken(c echo.Context) error {
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
 	}
-	err = database.SetRedisSession(sessionId, &redisSession)
+	err = session.SetRedisSession(sessionId, &redisSession)
 	if err != nil {
 		return err
 	}

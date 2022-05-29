@@ -1,8 +1,9 @@
-package database
+package postgres
 
 import (
 	"errors"
 	"fmt"
+
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"

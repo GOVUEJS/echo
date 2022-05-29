@@ -1,12 +1,13 @@
-package database
+package session
 
 import (
 	"context"
 	"fmt"
+	"time"
+
 	"github.com/go-redis/redis/v8"
 	"myapp/config"
 	"myapp/model"
-	"time"
 )
 
 var (
