@@ -2,6 +2,10 @@ package v1
 
 import (
 	"encoding/json"
+	"github.com/labstack/echo/v4"
+	"github.com/stretchr/testify/assert"
+	"gorm.io/gorm"
+	"myapp/service/v1"
 	"myapp/test"
 	"net/http"
 	"net/http/httptest"
@@ -9,10 +13,7 @@ import (
 	"strconv"
 	"strings"
 	"testing"
-
-	"github.com/labstack/echo/v4"
-	"github.com/stretchr/testify/assert"
-	"myapp/service/v1"
+	"time"
 )
 
 func TestGetArticleList(t *testing.T) {
@@ -125,6 +126,65 @@ func TestGetArticle(t *testing.T) {
 			// Assertions
 			if assert.NoError(t, v1.GetArticle(c)); rec.Code != tt.wantResult {
 				t.Errorf("GetArticle() gotResult = %v, want = %v, msg = %v", rec.Code, tt.wantResult, rec.Body.String())
+			}
+		})
+	}
+}
+
+func TestPostArticle(t *testing.T) {
+	type args struct {
+		Title     string
+		Content   string
+		DeletedAt gorm.DeletedAt
+	}
+	tests := []struct {
+		name       string
+		args       args
+		wantResult int
+	}{
+		{
+			name: testing.CoverMode(),
+			args: args{
+				Title:   "test",
+				Content: "test", DeletedAt: gorm.DeletedAt{
+					Time: time.Now(),
+				},
+			},
+			wantResult: http.StatusCreated,
+		},
+		{
+			name: testing.CoverMode(),
+			args: args{
+				Title:   "",
+				Content: "test",
+			},
+			wantResult: http.StatusBadRequest,
+		},
+		{
+			name: testing.CoverMode(),
+			args: args{
+				Title:   "test",
+				Content: "",
+			},
+			wantResult: http.StatusBadRequest,
+		},
+	}
+
+	e := test.NewEchoForTest()
+	target := "/api/v1/articles"
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			marshal, _ := json.Marshal(&tt.args)
+			req := httptest.NewRequest(http.MethodPost, target, strings.NewReader(string(marshal)))
+			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+			rec := httptest.NewRecorder()
+			c := e.NewContext(req, rec)
+			c.Set("email", "test@test.com")
+
+			// Assertions
+			if assert.NoError(t, v1.PostArticle(c)); rec.Code != tt.wantResult {
+				t.Errorf("PostArticle() gotResult = %v, want = %v, msg = %v", rec.Code, tt.wantResult, rec.Body.String())
 			}
 		})
 	}
