@@ -285,6 +285,20 @@ func TestDeleteArticle(t *testing.T) {
 			},
 			wantResult: http.StatusNoContent,
 		},
+		{
+			name: "",
+			args: args{
+				Id: "9",
+			},
+			wantResult: http.StatusUnauthorized,
+		},
+		{
+			name: "",
+			args: args{
+				Id: "1",
+			},
+			wantResult: http.StatusNotFound,
+		},
 	}
 
 	e := test.NewEchoForTest()

@@ -189,6 +189,12 @@ func DeleteArticle(c echo.Context) error {
 	if err != nil {
 		return util.Response(c, http.StatusBadRequest, "Wrong Id", nil)
 	}
+	idUint := uint(idInt)
+
+	tx := rdb.Select("deleted_at").Find(&model.Article{Id: idUint}, idUint)
+	if tx.RowsAffected == 0 {
+		return util.Response(c, http.StatusNotFound, "Article not found", nil)
+	}
 
 	var writer string
 	rdb.
@@ -196,11 +202,11 @@ func DeleteArticle(c echo.Context) error {
 		Select([]string{"writer"}).
 		First(&writer, id) // primary key 기준으로 Article 찾기
 	if email := c.Get("email"); email != writer {
-		return echo.ErrUnauthorized
+		return util.Response(c, http.StatusUnauthorized, "Unauthorized", nil)
 	}
 
 	// 삭제 - articleData 삭제하기
-	tx := rdb.Delete(&model.Article{}, idInt)
+	tx = rdb.Delete(&model.Article{}, idUint)
 	if tx.RowsAffected == 0 {
 		return echo.ErrNotFound
 	}
