@@ -2,9 +2,9 @@ package v1
 
 import (
 	"encoding/json"
+	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
-	"gorm.io/gorm"
 	"myapp/service/v1"
 	"myapp/test"
 	"net/http"
@@ -13,7 +13,6 @@ import (
 	"strconv"
 	"strings"
 	"testing"
-	"time"
 )
 
 func TestGetArticleList(t *testing.T) {
@@ -81,28 +80,28 @@ func TestGetArticle(t *testing.T) {
 		wantResult int
 	}{
 		{
-			name: "id=1 - 404",
+			name: "Id=1 - 404",
 			args: args{
 				id: "1",
 			},
 			wantResult: http.StatusNotFound,
 		},
 		{
-			name: "id=-1 - 400",
+			name: "Id=-1 - 400",
 			args: args{
 				id: "-1",
 			},
 			wantResult: http.StatusBadRequest,
 		},
 		{
-			name: "id=8 - 200",
+			name: "Id=8 - 200",
 			args: args{
 				id: "8",
 			},
 			wantResult: http.StatusOK,
 		},
 		{
-			name: "id=q - 400",
+			name: "Id=q - 400",
 			args: args{
 				id: "q",
 			},
@@ -111,7 +110,7 @@ func TestGetArticle(t *testing.T) {
 	}
 
 	e := test.NewEchoForTest()
-	target := "/api/v1/article/:id"
+	target := "/api/v1/article/:Id"
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -120,7 +119,7 @@ func TestGetArticle(t *testing.T) {
 			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 			rec := httptest.NewRecorder()
 			c := e.NewContext(req, rec)
-			c.SetParamNames("id")
+			c.SetParamNames("Id")
 			c.SetParamValues(tt.args.id)
 
 			// Assertions
@@ -133,9 +132,8 @@ func TestGetArticle(t *testing.T) {
 
 func TestPostArticle(t *testing.T) {
 	type args struct {
-		Title     string
-		Content   string
-		DeletedAt gorm.DeletedAt
+		Title   string
+		Content string
 	}
 	tests := []struct {
 		name       string
@@ -143,17 +141,15 @@ func TestPostArticle(t *testing.T) {
 		wantResult int
 	}{
 		{
-			name: testing.CoverMode(),
+			name: "",
 			args: args{
 				Title:   "test",
-				Content: "test", DeletedAt: gorm.DeletedAt{
-					Time: time.Now(),
-				},
+				Content: "test",
 			},
 			wantResult: http.StatusCreated,
 		},
 		{
-			name: testing.CoverMode(),
+			name: "",
 			args: args{
 				Title:   "",
 				Content: "test",
@@ -161,7 +157,7 @@ func TestPostArticle(t *testing.T) {
 			wantResult: http.StatusBadRequest,
 		},
 		{
-			name: testing.CoverMode(),
+			name: "",
 			args: args{
 				Title:   "test",
 				Content: "",
@@ -185,6 +181,86 @@ func TestPostArticle(t *testing.T) {
 			// Assertions
 			if assert.NoError(t, v1.PostArticle(c)); rec.Code != tt.wantResult {
 				t.Errorf("PostArticle() gotResult = %v, want = %v, msg = %v", rec.Code, tt.wantResult, rec.Body.String())
+			}
+		})
+	}
+}
+
+func TestPutArticle(t *testing.T) {
+	type args struct {
+		id      string
+		Title   string
+		Content string
+	}
+	tests := []struct {
+		name       string
+		args       args
+		wantResult int
+	}{
+		{
+			name: "",
+			args: args{
+				id:      "7",
+				Title:   "test",
+				Content: "test",
+			},
+			wantResult: http.StatusNotFound,
+		},
+		{
+			name: "",
+			args: args{
+				id:      "78",
+				Title:   "",
+				Content: "test",
+			},
+			wantResult: http.StatusBadRequest,
+		},
+		{
+			name: "",
+			args: args{
+				id:      "78",
+				Title:   "test",
+				Content: "",
+			},
+			wantResult: http.StatusBadRequest,
+		},
+		{
+			name: "",
+			args: args{
+				id:      "78",
+				Title:   "test",
+				Content: uuid.New().String(),
+			},
+			wantResult: http.StatusOK,
+		},
+		{
+			name: "",
+			args: args{
+				id:      "73",
+				Title:   "test",
+				Content: uuid.New().String(),
+			},
+			wantResult: http.StatusUnauthorized,
+		},
+	}
+
+	e := test.NewEchoForTest()
+	target := "/api/v1/articles/:id"
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			marshal, _ := json.Marshal(&tt.args)
+			req := httptest.NewRequest(http.MethodPut, target, strings.NewReader(string(marshal)))
+			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+			rec := httptest.NewRecorder()
+			c := e.NewContext(req, rec)
+			c.Set("email", "test@test.com")
+			c.SetParamNames("id")
+			c.SetParamValues(tt.args.id)
+
+			// Assertions
+			if assert.NoError(t, v1.PutArticle(c)); rec.Code != tt.wantResult {
+				t.Errorf("PutArticle() gotResult = %v, want = %v, msg = %v", rec.Code, tt.wantResult, rec.Body.String())
 			}
 		})
 	}
