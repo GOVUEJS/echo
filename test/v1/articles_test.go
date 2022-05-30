@@ -5,6 +5,8 @@ import (
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
+	"myapp/database/rdb/postgres"
+	"myapp/model"
 	"myapp/service/v1"
 	"myapp/test"
 	"net/http"
@@ -110,7 +112,7 @@ func TestGetArticle(t *testing.T) {
 	}
 
 	e := test.NewEchoForTest()
-	target := "/api/v1/article/:Id"
+	target := "/api/v1/article/:id"
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -119,7 +121,7 @@ func TestGetArticle(t *testing.T) {
 			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 			rec := httptest.NewRecorder()
 			c := e.NewContext(req, rec)
-			c.SetParamNames("Id")
+			c.SetParamNames("id")
 			c.SetParamValues(tt.args.id)
 
 			// Assertions
@@ -261,6 +263,51 @@ func TestPutArticle(t *testing.T) {
 			// Assertions
 			if assert.NoError(t, v1.PutArticle(c)); rec.Code != tt.wantResult {
 				t.Errorf("PutArticle() gotResult = %v, want = %v, msg = %v", rec.Code, tt.wantResult, rec.Body.String())
+			}
+		})
+	}
+}
+
+func TestDeleteArticle(t *testing.T) {
+
+	type args struct {
+		Id string
+	}
+	tests := []struct {
+		name       string
+		args       args
+		wantResult int
+	}{
+		{
+			name: "removeOK",
+			args: args{
+				Id: "",
+			},
+			wantResult: http.StatusNoContent,
+		},
+	}
+
+	e := test.NewEchoForTest()
+	target := "/api/v1/articles/:id"
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if tt.name == "removeOK" {
+				postgres.GetRDB().Model(model.Article{}).Select("id").Where("writer = ?", "test@test.com").Order("id desc").First(&tt.args.Id)
+			}
+
+			marshal, _ := json.Marshal(&tt.args)
+			req := httptest.NewRequest(http.MethodDelete, target, strings.NewReader(string(marshal)))
+			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+			rec := httptest.NewRecorder()
+			c := e.NewContext(req, rec)
+			c.Set("email", "test@test.com")
+			c.SetParamNames("id")
+			c.SetParamValues(tt.args.Id)
+
+			// Assertions
+			if assert.NoError(t, v1.DeleteArticle(c)); rec.Code != tt.wantResult {
+				t.Errorf("DeleteArticle() gotResult = %v, want = %v, msg = %v", rec.Code, tt.wantResult, rec.Body.String())
 			}
 		})
 	}
