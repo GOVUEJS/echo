@@ -14,8 +14,6 @@ func InitEcho() {
 
 	e.IPExtractor = echo.ExtractIPFromXFFHeader()
 
-	//e.Use(cookieForSessionMiddleware())
-	//e.Use(sessionMiddleware())
 	e.Use(requestIDMiddleware())
 	e.Use(loggerMiddleware())
 	e.Use(CORSMiddleware())

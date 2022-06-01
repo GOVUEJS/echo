@@ -2,35 +2,12 @@ package server
 
 import (
 	"net/http"
-	"time"
 
-	"github.com/gorilla/sessions"
-	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/labstack/gommon/random"
 	"myapp/logger"
 )
-
-func cookieForSessionMiddleware() echo.MiddlewareFunc {
-	return session.Middleware(sessions.NewCookieStore([]byte("secret")))
-}
-
-func sessionMiddleware() func(next echo.HandlerFunc) echo.HandlerFunc {
-	return func(next echo.HandlerFunc) echo.HandlerFunc {
-		return func(c echo.Context) error {
-			sess, _ := session.Get("session", c)
-			sess.Options = &sessions.Options{
-				Path:     "/",
-				MaxAge:   int(time.Hour),
-				HttpOnly: true,
-			}
-			sess.Values["foo"] = "bar"
-			sess.Save(c.Request(), c.Response())
-			return c.NoContent(http.StatusOK)
-		}
-	}
-}
 
 func requestIDMiddleware() echo.MiddlewareFunc {
 	return middleware.RequestIDWithConfig(middleware.RequestIDConfig{
