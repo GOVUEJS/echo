@@ -11,6 +11,18 @@ jobs:
     name: Build and deployment
     runs-on: ubuntu-latest
     steps:
+    - name: yum update with ssh
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.ROOT_USERNAME }}
+        password: ${{ secrets.ROOT_PASSWORD }}
+        port: ${{ secrets.PORT }}
+        script_stop: true
+        script: |
+          sudo yum update -y
+
+
     - name: git pull with ssh
       uses: appleboy/ssh-action@master
       with:
