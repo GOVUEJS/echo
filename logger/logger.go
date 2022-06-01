@@ -1,10 +1,9 @@
 package logger
 
 import (
-	"gopkg.in/natefinch/lumberjack.v2"
 	"io"
-	"log"
-	"os"
+
+	"gopkg.in/natefinch/lumberjack.v2"
 )
 
 var logger io.Writer
@@ -18,7 +17,6 @@ func InitLogger() {
 		Compress:   false, // disabled by default
 		LocalTime:  true,
 	}
-	log.SetOutput(io.MultiWriter(os.Stdout, logger))
 }
 
 func GetLogger() *io.Writer {
