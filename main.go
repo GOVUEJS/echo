@@ -11,9 +11,9 @@ import (
 	"myapp/service"
 )
 
-// @title Hwisaek's server
+// @title NasiGolang's server
 // @version 1.0
-// @description This is a Hwisaek's server.
+// @description This is a NasiGolang's server.
 // @contact.name API Support
 // @contact.email dia_changmin@naver.com
 // @host 211.34.36.139:1323
